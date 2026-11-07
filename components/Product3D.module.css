@@ -1,0 +1,278 @@
+.root {
+  display: grid;
+  gap: var(--s-200);
+}
+
+.stage {
+  position: relative;
+  height: clamp(420px, 62vh, 640px);
+  display: grid;
+  place-items: center;
+  perspective: 1400px;
+  perspective-origin: 50% 40%;
+  background: var(--bg-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3xl);
+  /* clip, not hidden: a hidden box can still scroll when a hotspot takes focus */
+  overflow: clip;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.stage[data-dragging="true"] {
+  cursor: grabbing;
+}
+
+.stage:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: var(--r-3xl);
+}
+
+/* Floor grid gives the turn a reference plane */
+.floor {
+  position: absolute;
+  left: -20%;
+  right: -20%;
+  bottom: -10%;
+  height: 50%;
+  transform: rotateX(72deg);
+  transform-origin: 50% 100%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Cpath d='M48 0H0V48' fill='none' stroke='%23ffffff' stroke-opacity='0.06'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+.shadow {
+  position: absolute;
+  bottom: 9%;
+  left: 50%;
+  width: 56%;
+  height: 32px;
+  margin-left: -28%;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.9);
+  filter: blur(18px);
+  pointer-events: none;
+}
+
+.float {
+  height: 78%;
+  display: grid;
+  place-items: center;
+  transform-style: preserve-3d;
+  animation: float 6s var(--ease) infinite alternate;
+}
+
+@keyframes float {
+  from { transform: translateY(0); }
+  to { transform: translateY(calc(var(--s-75) * -1)); }
+}
+
+.object {
+  position: relative;
+  height: 100%;
+  max-width: 80vw;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.img {
+  object-fit: contain;
+  pointer-events: none;
+  transform: translateZ(0);
+}
+
+/* Hotspots sit 48px in front of the photo so they move with parallax */
+.hotspot {
+  position: absolute;
+  width: var(--s-400);
+  height: var(--s-400);
+  margin: calc(var(--s-200) * -1) 0 0 calc(var(--s-200) * -1);
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: var(--r-full);
+  background: var(--accent);
+  color: #000000;
+  cursor: pointer;
+  transform: translateZ(48px);
+  transition: transform 300ms var(--ease), background-color 300ms var(--ease);
+}
+
+.hotspot svg {
+  transition: transform 500ms var(--ease);
+}
+
+.hotspot:hover {
+  transform: translateZ(48px) scale(1.1);
+}
+
+.hotspot:active {
+  transform: translateZ(48px) scale(0.98);
+}
+
+.hotspot[data-active="true"] {
+  background: var(--text);
+}
+
+.hotspot[data-active="true"] svg {
+  transform: rotate(45deg);
+}
+
+.ring {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--r-full);
+  border: 2px solid var(--accent);
+  animation: pulse 2.4s var(--ease) infinite;
+}
+
+@keyframes pulse {
+  from { transform: scale(1); opacity: 0.8; }
+  to { transform: scale(1.8); opacity: 0; }
+}
+
+.hint {
+  position: absolute;
+  bottom: var(--s-200);
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-75);
+  padding: var(--s-50) var(--s-100);
+  background: rgba(39, 39, 39, 0.8);
+  backdrop-filter: blur(8px);
+  border-radius: var(--r-full);
+  color: var(--text-muted);
+  transition: opacity 500ms var(--ease);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.hint[data-hidden="true"] {
+  opacity: 0;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--s-200);
+  flex-wrap: wrap;
+}
+
+.views {
+  display: inline-flex;
+  padding: var(--s-50);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-xl);
+}
+
+.viewBtn {
+  padding: var(--s-75) var(--s-200);
+  border: 0;
+  /* outer 12px, gap 4px: inner 8px */
+  border-radius: var(--r-lg);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background-color 300ms var(--ease), color 300ms var(--ease);
+}
+
+.viewBtn:hover {
+  color: var(--text);
+}
+
+.viewBtn[aria-checked="true"] {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.reset {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-75);
+  padding: var(--s-75) var(--s-100);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 300ms var(--ease), background-color 300ms var(--ease);
+}
+
+.reset:hover {
+  color: var(--text);
+  background: var(--surface-2);
+}
+
+.reset:active,
+.viewBtn:active {
+  transform: scale(0.98);
+}
+
+.detail {
+  min-height: 80px;
+}
+
+.dot {
+  display: inline-block;
+  width: var(--s-100);
+  height: var(--s-100);
+  border-radius: var(--r-full);
+  background: var(--accent);
+  vertical-align: middle;
+}
+
+.detailCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--s-200);
+  padding: var(--s-200);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-xl);
+  animation: rise 500ms var(--ease);
+}
+
+.detailCard > div {
+  display: grid;
+  gap: var(--s-50);
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(var(--s-75)); }
+  to { opacity: 1; transform: none; }
+}
+
+.close {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: var(--s-400);
+  height: var(--s-400);
+  border: 0;
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background-color 300ms var(--ease), color 300ms var(--ease);
+}
+
+.close:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .float,
+  .ring,
+  .detailCard {
+    animation: none;
+  }
+}

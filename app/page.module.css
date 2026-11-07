@@ -1,0 +1,401 @@
+/* Hero */
+.hero {
+  padding-top: calc(var(--s-900) + var(--s-800));
+  padding-bottom: var(--s-700);
+}
+
+.heroCopy {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: var(--s-300);
+  max-width: 680px;
+  margin-inline: auto;
+}
+
+.heroCopy h1 {
+  max-width: 680px;
+}
+
+.sub {
+  max-width: 560px;
+}
+
+.proof {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--s-100) var(--s-300);
+}
+
+.proof li,
+.assurances li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-75);
+}
+
+.proof svg,
+.assurances svg {
+  color: var(--accent-3);
+}
+
+.heroStage {
+  position: relative;
+  margin-top: var(--s-700);
+  height: 520px;
+  background: var(--bg-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3xl);
+  overflow: hidden;
+}
+
+.heroPrime,
+.heroPro {
+  position: absolute;
+  bottom: var(--s-600);
+}
+
+.heroPrime {
+  left: 50%;
+  width: 300px;
+  transform: translateX(-90%);
+}
+
+.heroPro {
+  left: 50%;
+  width: 300px;
+  transform: translateX(10%);
+}
+
+.heroPrime img,
+.heroPro img {
+  width: 100%;
+  height: auto;
+}
+
+.tagPrime,
+.tagPro {
+  position: absolute;
+  bottom: var(--s-200);
+  padding: var(--s-50) var(--s-100);
+  border: 1px solid var(--line);
+  border-radius: var(--r-full);
+  color: var(--text-muted);
+}
+
+.tagPrime {
+  left: 50%;
+  transform: translateX(-150%);
+}
+
+.tagPro {
+  left: 50%;
+  transform: translateX(80%);
+}
+
+@media (max-width: 720px) {
+  .hero {
+    padding-top: calc(var(--s-900) + var(--s-400));
+  }
+  .heroStage {
+    height: 360px;
+    margin-top: var(--s-600);
+  }
+  .heroPrime {
+    width: 46%;
+    transform: translateX(-92%);
+    bottom: var(--s-600);
+  }
+  .heroPro {
+    width: 44%;
+    transform: translateX(4%);
+    bottom: var(--s-600);
+  }
+  .tagPrime {
+    left: var(--s-200);
+    transform: none;
+  }
+  .tagPro {
+    left: auto;
+    right: var(--s-200);
+    transform: none;
+  }
+}
+
+/* Problem to solution */
+.compare {
+  display: grid;
+  gap: var(--s-200);
+  padding: var(--s-400);
+  align-content: start;
+}
+
+.compareGood {
+  border-color: rgba(31, 162, 230, 0.5);
+}
+
+.compareGood > p {
+  color: var(--accent);
+}
+
+.compareList {
+  display: grid;
+  gap: var(--s-100);
+}
+
+.compareList li {
+  padding-left: var(--s-300);
+  position: relative;
+}
+
+.compareList li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 10px;
+  width: var(--s-75);
+  height: var(--s-75);
+  border-radius: var(--r-full);
+  background: var(--line);
+}
+
+.compareGood .compareList li::before {
+  background: var(--accent);
+}
+
+/* Benefits */
+.benefit {
+  display: grid;
+  gap: var(--s-100);
+  padding: var(--s-300);
+  align-content: start;
+  transition: transform 500ms var(--ease), border-color 300ms var(--ease);
+}
+
+.benefit:hover {
+  transform: translateY(calc(var(--s-50) * -1));
+  border-color: #4a4a4a;
+}
+
+.iconBox {
+  display: grid;
+  place-items: center;
+  width: var(--s-600);
+  height: var(--s-600);
+  margin-bottom: var(--s-100);
+  border-radius: var(--r-xl);
+  background: var(--surface-2);
+  color: var(--accent);
+}
+
+/* Products */
+.product {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: var(--s-300);
+  padding: var(--s-75);
+  height: 100%;
+  transition: transform 500ms var(--ease), border-color 300ms var(--ease);
+}
+
+.product:hover {
+  transform: translateY(calc(var(--s-75) * -1));
+  border-color: #4a4a4a;
+}
+
+.product:active {
+  transform: scale(0.98);
+}
+
+.productImg {
+  display: grid;
+  place-items: center;
+  height: 280px;
+  padding: var(--s-300);
+  background: var(--bg-deep);
+  /* nested radius: outer 16px minus 8px padding = 8px */
+  border-radius: var(--r-lg);
+}
+
+.productImg img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 500ms var(--ease);
+}
+
+.product:hover .productImg img {
+  transform: scale(1.04);
+}
+
+.productBody {
+  display: grid;
+  gap: var(--s-100);
+  padding: var(--s-200) var(--s-200) var(--s-200) 0;
+}
+
+@media (max-width: 960px) {
+  .productBody {
+    padding: var(--s-75) var(--s-200) var(--s-200);
+  }
+}
+
+.productBody :global(.link-arrow) {
+  margin-top: var(--s-100);
+}
+
+@media (max-width: 960px) {
+  .product {
+    grid-template-columns: 1fr;
+  }
+  .productImg {
+    height: 240px;
+  }
+}
+
+/* How it works */
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--s-300);
+}
+
+.step {
+  display: grid;
+  gap: var(--s-100);
+  padding: var(--s-300);
+  align-content: start;
+}
+
+.stepNum {
+  color: var(--accent);
+}
+
+.stepIcon {
+  color: var(--accent);
+  margin-block: var(--s-75);
+}
+
+@media (max-width: 860px) {
+  .steps {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Proof */
+.facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--s-300);
+  margin: 0;
+}
+
+.fact {
+  display: grid;
+  gap: var(--s-75);
+  padding: var(--s-300);
+  border: 1px solid var(--line);
+  border-radius: var(--r-2xl);
+}
+
+.fact dd {
+  margin: 0;
+}
+
+@media (max-width: 960px) {
+  .facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .facts {
+    grid-template-columns: 1fr;
+  }
+}
+
+.quotes {
+  margin-top: var(--s-300);
+}
+
+.quote {
+  display: grid;
+  gap: var(--s-200);
+  padding: var(--s-400);
+}
+
+.partner {
+  margin-top: var(--s-300);
+  display: flex;
+  gap: var(--s-300);
+  align-items: flex-start;
+  padding: var(--s-400);
+}
+
+.partner > div {
+  display: grid;
+  gap: var(--s-75);
+  max-width: 680px;
+}
+
+.partner svg {
+  flex: none;
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .partner {
+    flex-direction: column;
+    padding: var(--s-300);
+    gap: var(--s-200);
+  }
+}
+
+/* FAQ */
+.faqWrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: var(--s-600);
+  align-items: start;
+}
+
+.inlineLink {
+  color: var(--text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 960px) {
+  .faqWrap {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
+
+/* Final CTA */
+.quoteWrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+  gap: var(--s-600);
+  align-items: start;
+}
+
+.quoteCopy {
+  display: grid;
+  gap: var(--s-200);
+}
+
+.assurances {
+  display: grid;
+  gap: var(--s-100);
+  margin-top: var(--s-100);
+}
+
+@media (max-width: 960px) {
+  .quoteWrap {
+    grid-template-columns: 1fr;
+    gap: var(--s-400);
+  }
+}

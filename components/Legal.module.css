@@ -1,0 +1,26 @@
+.page {
+  padding-top: calc(var(--s-900) + var(--s-600));
+  padding-bottom: var(--s-900);
+}
+
+.body {
+  max-width: 680px;
+  display: grid;
+  gap: var(--s-300);
+}
+
+.body h2 {
+  margin-top: var(--s-300);
+}
+
+.body ul {
+  display: grid;
+  gap: var(--s-75);
+  padding-left: var(--s-300);
+  list-style: disc;
+}
+
+.body a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

@@ -1,0 +1,27 @@
+.wrap {
+  padding-block: var(--s-900);
+}
+
+.text {
+  max-width: 680px;
+}
+
+.line {
+  display: block;
+}
+
+.word {
+  color: var(--text);
+  opacity: 0.3;
+  transition: opacity 500ms var(--ease);
+}
+
+.on {
+  opacity: 1;
+}
+
+@media (max-width: 640px) {
+  .line {
+    display: inline;
+  }
+}
