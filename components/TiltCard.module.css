@@ -1,0 +1,22 @@
+.scene {
+  perspective: 800px;
+  height: 100%;
+}
+
+.card {
+  height: 100%;
+  padding: var(--s-300);
+  transform-style: preserve-3d;
+  transition: transform 500ms var(--ease), border-color 300ms var(--ease);
+}
+
+.card:hover {
+  border-color: #4a4a4a;
+}
+
+/* Content floats above the card surface for parallax depth */
+.inner {
+  display: grid;
+  gap: var(--s-100);
+  transform: translateZ(24px);
+}

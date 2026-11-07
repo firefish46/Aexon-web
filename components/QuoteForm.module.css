@@ -1,0 +1,124 @@
+.form {
+  display: grid;
+  gap: var(--s-300);
+  padding: var(--s-400);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-300);
+}
+
+.field {
+  display: grid;
+  gap: var(--s-75);
+  align-content: start;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  padding: var(--s-100) var(--s-200);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  /* outer card 16px radius, nested shape uses 8px */
+  border-radius: var(--r-lg);
+  font-size: 16px;
+  line-height: 24px;
+  transition:
+    border-color 300ms var(--ease),
+    background-color 300ms var(--ease);
+}
+
+.field select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 256 256'%3E%3Cpath fill='%239b9b9b' d='M213.66 101.66l-80 80a8 8 0 0 1-11.32 0l-80-80a8 8 0 0 1 11.32-11.32L128 164.69l74.34-74.35a8 8 0 0 1 11.32 11.32Z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--s-200) center;
+  padding-right: var(--s-500);
+}
+
+.field textarea {
+  resize: vertical;
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: #6b6b6b;
+}
+
+.field input:hover,
+.field select:hover,
+.field textarea:hover {
+  border-color: #4a4a4a;
+}
+
+.field input:focus-visible,
+.field select:focus-visible,
+.field textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 0;
+  border-color: var(--accent);
+}
+
+.field [aria-invalid="true"] {
+  border-color: var(--danger);
+}
+
+.error {
+  display: flex;
+  align-items: center;
+  gap: var(--s-50);
+  color: var(--danger);
+}
+
+.banner {
+  padding: var(--s-100) var(--s-200);
+  border: 1px solid rgba(255, 107, 91, 0.4);
+  border-radius: var(--r-lg);
+}
+
+.banner a {
+  text-decoration: underline;
+}
+
+.hp {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.submit {
+  display: flex;
+  align-items: center;
+  gap: var(--s-200);
+  flex-wrap: wrap;
+}
+
+.done {
+  display: grid;
+  gap: var(--s-100);
+  padding: var(--s-400);
+}
+
+.okIcon {
+  color: var(--success);
+}
+
+@media (max-width: 640px) {
+  .form,
+  .done {
+    padding: var(--s-300);
+  }
+  .row {
+    grid-template-columns: 1fr;
+  }
+  .submit .btn,
+  .submit button {
+    width: 100%;
+  }
+}
