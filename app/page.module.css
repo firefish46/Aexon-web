@@ -210,6 +210,7 @@
 }
 
 .productImg {
+  position: relative;
   display: grid;
   place-items: center;
   height: 280px;
@@ -220,8 +221,10 @@
 }
 
 .productImg img {
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  inset: var(--s-200);
+  width: calc(100% - var(--s-400));
+  height: calc(100% - var(--s-400));
   object-fit: contain;
   transition: transform 500ms var(--ease);
 }

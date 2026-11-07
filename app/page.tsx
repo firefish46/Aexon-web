@@ -7,7 +7,7 @@ import {
   Clock,
   DropSlash,
   Factory,
-  HandTap,
+  Plugs,
   Handshake,
   MagnifyingGlass,
   Truck,
@@ -28,12 +28,12 @@ const benefits = [
   {
     icon: MagnifyingGlass,
     title: "Detail clinicians can read",
-    body: "The Laser Pro prints at 508 DPI for crisp lines and smooth tones.",
+    body: "Both imagers print at 508 DPI with 14 bit greyscale for crisp lines and smooth tones.",
   },
   {
-    icon: HandTap,
-    title: "Learned in minutes",
-    body: "Touchscreen consoles put the print queue, status and settings on one screen.",
+    icon: Plugs,
+    title: "Plugs into your PACS",
+    body: "Standard DICOM 3.0 over Ethernet, with automatic calibration from a built in densitometer.",
   },
   {
     icon: Factory,
@@ -62,9 +62,9 @@ const steps = [
 
 const facts = [
   { value: "UK", label: "Designed and manufactured in Middlesbrough" },
-  { value: "508 DPI", label: "Print resolution on the Laser Pro" },
+  { value: "508 DPI", label: "Print resolution on both imagers, with 14 bit greyscale" },
   { value: "24 hours", label: "Reply time on every quote request" },
-  { value: "2 regions", label: "Supplying the United Kingdom and Bangladesh" },
+  { value: "130+", label: "Sheets per hour of 14×17 in film on the Laser Prime" },
 ];
 
 export default function Home() {
@@ -92,7 +92,7 @@ export default function Home() {
               Request a quote <ArrowRight size={16} weight="bold" aria-hidden />
             </a>
             <ul className={styles.proof}>
-              <li className="caption-4 muted"><Check size={14} weight="bold" aria-hidden /> 508 DPI on the Laser Pro</li>
+              <li className="caption-4 muted"><Check size={14} weight="bold" aria-hidden /> 508 DPI, 14 bit greyscale</li>
               <li className="caption-4 muted"><Check size={14} weight="bold" aria-hidden /> Reply within 24 hours</li>
               <li className="caption-4 muted"><Check size={14} weight="bold" aria-hidden /> UK manufacturer</li>
             </ul>
@@ -133,8 +133,8 @@ export default function Home() {
               <p className="caption-3">Aexon dry laser imaging</p>
               <ul className={styles.compareList}>
                 <li className="body-3">Prints straight to film with heat and a laser</li>
-                <li className="body-3">Works in normal room light, no darkroom needed</li>
-                <li className="body-3">Film comes out dry and ready to read</li>
+                <li className="body-3">No darkroom and no processor to clean or replenish</li>
+                <li className="body-3">Self calibrating, so film stays consistent sheet after sheet</li>
               </ul>
             </Reveal>
           </div>

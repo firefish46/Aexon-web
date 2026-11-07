@@ -26,16 +26,19 @@ npm run build && npm start
 | `app/api/quote/route.ts` | Receives form submissions |
 | `app/globals.css` | Design tokens: spacing, radius, colour, named text styles, motion curve |
 
+## Hosting
+
+The site runs on your own VPS with Node.js, PM2 and Nginx. Follow **[DEPLOY.md](DEPLOY.md)**.
+
 ## Before launch
 
-1. **Connect the quote form.** Set `QUOTE_WEBHOOK_URL` to a Zapier, Make, Slack or CRM webhook. Each request is POSTed there as JSON. Until it is set, requests only go to the server log.
-2. **Sales email.** Replace `{{sales_email}}` in `content/site.ts`. The footer hides it until you do.
-3. **Testimonials.** Replace the `{{…}}` entries in `testimonials`. They show in `npm run dev` and stay hidden in production builds until they are real.
-4. **Specs.** Product spec rows with `value: null` show "Available on request". Fill in resolution (Laser Prime), film sizes, throughput, connectivity, dimensions and weight.
-5. **Hotspot positions.** Check the `x`/`y` percentages in `content/site.ts` against the photos.
-6. **Legal pages.** `/privacy` and `/terms` describe what the site actually does. Have them reviewed.
-7. **Cookies.** The site sets no tracking cookies. If you add analytics, add a consent banner too (UK GDPR / PECR).
-8. **Social links.** LinkedIn, YouTube and X were left out because the URLs were unknown. Add them to `Footer.tsx`.
+1. **Quote email.** Requests go to `cmo@dmebd.com`. Add SMTP details to `.env.production` on the server (see `.env.example`).
+2. **Testimonials.** Replace the `{{…}}` entries in `testimonials` in `content/site.ts`. They show in `npm run dev` and stay hidden in production builds until they are real.
+3. **Public email.** To show an email in the footer, replace `{{sales_email}}` in `content/site.ts`.
+4. **Hotspot positions.** Check the `x`/`y` percentages in `content/site.ts` against the photos.
+5. **Legal pages.** `/privacy` and `/terms` describe what the site actually does. Have them reviewed.
+6. **Cookies.** The site sets no tracking cookies. If you add analytics, add a consent banner too.
+7. **Social links.** Add LinkedIn, YouTube and X URLs to `Footer.tsx`.
 
 ## Page plan
 
