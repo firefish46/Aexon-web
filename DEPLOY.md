@@ -38,66 +38,71 @@ Your zone already has the website, MX, SPF, DKIM and DMARC records. Three change
   aexon.uk exactly.
 - Cloudflare > **SSL/TLS** must be on **Full (strict)**, not Flexible (step 7).
 
-### B. Deploy from GitHub in WHM > Terminal (runs as root)
+### B. Deploy from GitHub in WHM > Terminal (everything as root)
 
 The code is at `https://github.com/firefish46/Aexon-web` (public, branch `main`).
-These commands build and run the app as the aexon.uk cPanel user, not as root.
+Every command below runs as root; there is no need to switch to the cPanel user.
+
+- **Where the files live:** in the aexon.uk account's home folder, owned by that
+  account.
+- **Git ownership:** root is told the folder is a safe repository, so Git doesn't
+  refuse with "dubious ownership".
+- **Who runs the site:** PM2 runs under root, but `ecosystem.config.cjs` starts the
+  website itself as the folder's owner, not as root. A problem in the site then
+  stays inside the aexon.uk account and can't reach your other sites.
 
 ```bash
-# 1. Find the cPanel user that owns aexon.uk
-U=$(/scripts/whoowns aexon.uk); echo "cPanel user: $U"
+# 1. The cPanel account that owns aexon.uk, and where the site will live
+U=$(/scripts/whoowns aexon.uk); APP=/home/$U/aexon-web; echo "user: $U  folder: $APP"
 
-# 2. Check Node (needs 20.9 or newer), Git and PM2 for that user
-su -s /bin/bash - $U -c 'node -v; git --version; pm2 -v'
+# 2. Check Node (needs 20.9 or newer), Git and PM2, and that port 3100 is free
+node -v; git --version; pm2 -v
+ss -ltnp | grep ':3100 ' || echo "port 3100 is free"
 
-# 3. Check that port 3100 is free (no output means free)
-ss -ltnp | grep ':3100 '
-```
+# 3. Get the code, and mark it as a safe repository for root
+git clone https://github.com/firefish46/Aexon-web.git "$APP"
+git config --global --add safe.directory "$APP"
 
-If `node -v` fails or is older than 20.9, use the same Node your other sites use.
-For example, add `export PATH=/opt/cpanel/ea-nodejs22/bin:$PATH` to
-`/home/$U/.bashrc`. If `pm2` is missing, run `npm install -g pm2` as root.
-If port 3100 is taken, pick another and change it in `ecosystem.config.cjs` and
-`deploy/apache-aexon-proxy.conf`.
-
-```bash
-# 4. Switch to the cPanel user
-su -s /bin/bash - $U
-```
-
-Now, as that user:
-
-```bash
-cd ~
-git clone https://github.com/firefish46/Aexon-web.git aexon-web
-cd aexon-web
-cp .env.example .env.production && chmod 600 .env.production
+# 4. Quote form email settings
+cd "$APP"
+cp .env.example .env.production
 nano .env.production        # put in the website@aexon.uk mailbox password, then Ctrl+O, Enter, Ctrl+X
+
+# 5. Install and build
 npm ci
 npm run build
+
+# 6. Hand the folder to the cPanel account (the app runs as it), and protect the password file
+chown -R "$U:$U" "$APP"
+chmod 600 "$APP/.env.production"
+
+# 7. Start with PM2; it runs the site as $U
 pm2 start ecosystem.config.cjs
 pm2 save
-curl -sI http://127.0.0.1:3100 | head -1     # expect: HTTP/1.1 200 OK
-exit                                         # back to root
-```
+ps -o user= -p "$(pm2 pid aexon-web)"       # should print the cPanel user, not root
+curl -sI http://127.0.0.1:3100 | head -1    # expect: HTTP/1.1 200 OK
 
-Back as root:
-
-```bash
-# 5. Start the app automatically after a reboot
-pm2 startup systemd -u $U --hp /home/$U
-
-# 6. Send aexon.uk traffic from Apache to the app
+# 8. Send aexon.uk traffic from Apache to the app
 for t in ssl std; do
   mkdir -p /etc/apache2/conf.d/userdata/$t/2_4/$U/aexon.uk
-  cp /home/$U/aexon-web/deploy/apache-aexon-proxy.conf /etc/apache2/conf.d/userdata/$t/2_4/$U/aexon.uk/aexon-proxy.conf
+  cp "$APP/deploy/apache-aexon-proxy.conf" /etc/apache2/conf.d/userdata/$t/2_4/$U/aexon.uk/aexon-proxy.conf
 done
 /scripts/ensure_vhost_includes --user=$U
 /scripts/rebuildhttpdconf && /scripts/restartsrv_httpd
 
-# 7. Test, bypassing Cloudflare
+# 9. Test, bypassing Cloudflare
 curl -skI --resolve aexon.uk:443:144.79.249.12 https://aexon.uk | head -3
 ```
+
+**Notes:**
+
+- **If `node -v` is older than 20.9 or missing:** use the Node your other sites use,
+  for example `export PATH=/opt/cpanel/ea-nodejs22/bin:$PATH`.
+- **If `pm2 -v` fails:** run `npm install -g pm2`.
+- **If port 3100 is taken:** pick another and change it in `ecosystem.config.cjs` and
+  `deploy/apache-aexon-proxy.conf`.
+- **After a reboot:** root's PM2 is probably already set to start on boot for your
+  other sites. If `pm2 startup` has never been run as root, run it once.
 
 Then finish in cPanel and Cloudflare:
 
@@ -109,9 +114,11 @@ Then finish in cPanel and Cloudflare:
 ### C. Update the site later (root Terminal)
 
 ```bash
-U=$(/scripts/whoowns aexon.uk)
-su -s /bin/bash - $U -c 'cd ~/aexon-web && ./deploy/update.sh'
+cd /home/$(/scripts/whoowns aexon.uk)/aexon-web && ./deploy/update.sh
 ```
+
+The script pulls from GitHub, installs, builds, hands the files back to the cPanel
+account, and reloads the app.
 
 The sections below explain each step in more detail.
 
