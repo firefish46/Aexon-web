@@ -28,7 +28,7 @@ npm run build && npm start
 
 ## Hosting
 
-The site runs on your own VPS with Node.js, PM2 and Nginx. Follow **[DEPLOY.md](DEPLOY.md)**.
+The site runs on the WHM/cPanel VPS as a Node.js app under PM2, behind cPanel's Apache, with Cloudflare for DNS. Follow **[DEPLOY.md](DEPLOY.md)**.
 
 ## Before launch
 

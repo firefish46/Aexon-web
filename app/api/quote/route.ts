@@ -34,6 +34,9 @@ function getTransport() {
     port,
     secure: port === 465,
     auth: process.env.SMTP_USER ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS } : undefined,
+    // When the mail server is on this machine, connect to 127.0.0.1 but check its
+    // certificate against the real mail hostname (e.g. mail.aexon.uk).
+    tls: process.env.SMTP_TLS_SERVERNAME ? { servername: process.env.SMTP_TLS_SERVERNAME } : undefined,
   });
   return transporter;
 }

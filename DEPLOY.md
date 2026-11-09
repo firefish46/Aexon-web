@@ -1,90 +1,384 @@
-# Deploying to your VPS
+# Deploying aexon.uk on the WHM / cPanel VPS
 
-These steps assume an Ubuntu 22.04 or 24.04 server with root or sudo access. The site runs as a Node.js process managed by PM2, with Nginx in front for HTTPS.
+This guide is for the server you already run: WHM with root access, one cPanel
+package per site, each site a Next.js app under PM2, and email handled by cPanel.
+The domain was bought from Cloudflare, so **Cloudflare is the DNS** for aexon.uk.
 
-## 1. One time server setup
+> **Why WHM's Zone Editor does nothing for aexon.uk.** Domains registered with
+> Cloudflare must keep Cloudflare's nameservers. WHM still creates a local zone for
+> the account, but nobody on the internet reads it. Every DNS record below goes in
+> **Cloudflare > aexon.uk > DNS > Records**. Leave the WHM zone alone.
+
+> **Do not install Nginx.** cPanel's Apache owns ports 80 and 443 for all your sites.
+> Apache forwards aexon.uk to the app instead (step 6). `deploy/nginx-aexon.conf`
+> is from an older plain-Ubuntu setup and is not used on this server.
+
+Work through the steps in order. Steps 1–4 can be done today; DNS changes usually
+show up within minutes on Cloudflare.
+
+---
+
+## Quick start for this server (144.79.249.12)
+
+### A. Fix the Cloudflare DNS (from the 9 Nov 2026 zone export)
+
+Your zone already has the website, MX, SPF, DKIM and DMARC records. Three changes:
+
+| Action | Type | Name | Content | Proxy |
+|---|---|---|---|---|
+| **Add** | A | `mail` | `144.79.249.12` | **DNS only** |
+| **Delete** | PTR | `12.249.79.144.in-addr.arpa` | – | – |
+| Add (optional) | A | `webmail`, `autodiscover`, `autoconfig` | `144.79.249.12` | DNS only |
+
+- **The `mail` record is essential.** The MX record points to `mail.aexon.uk`, but
+  that name doesn't exist yet, so no email for @aexon.uk can be delivered.
+- **The PTR record does nothing** inside a Cloudflare zone. Reverse DNS is set at
+  your VPS provider, where it already says `server.aexonhealthcare.com`.
+- Check that the DKIM value in Cloudflare matches cPanel > Email Deliverability for
+  aexon.uk exactly.
+- Cloudflare > **SSL/TLS** must be on **Full (strict)**, not Flexible (step 7).
+
+### B. Deploy from GitHub in WHM > Terminal (runs as root)
+
+The code is at `https://github.com/firefish46/Aexon-web` (public, branch `main`).
+These commands build and run the app as the aexon.uk cPanel user, not as root.
 
 ```bash
-# Node.js 22 and build tools
-curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
-sudo apt-get install -y nodejs git nginx
+# 1. Find the cPanel user that owns aexon.uk
+U=$(/scripts/whoowns aexon.uk); echo "cPanel user: $U"
 
-# PM2 process manager
-sudo npm install -g pm2
+# 2. Check Node (needs 20.9 or newer), Git and PM2 for that user
+su -s /bin/bash - $U -c 'node -v; git --version; pm2 -v'
+
+# 3. Check that port 3100 is free (no output means free)
+ss -ltnp | grep ':3100 '
 ```
 
-## 2. Point the domain at the server
-
-At your domain registrar, set DNS **A records** for `aexon.uk` and `www.aexon.uk` to your VPS IP address. Wait until `ping aexon.uk` shows the new IP.
-
-## 3. Get the code
+If `node -v` fails or is older than 20.9, use the same Node your other sites use.
+For example, add `export PATH=/opt/cpanel/ea-nodejs22/bin:$PATH` to
+`/home/$U/.bashrc`. If `pm2` is missing, run `npm install -g pm2` as root.
+If port 3100 is taken, pick another and change it in `ecosystem.config.cjs` and
+`deploy/apache-aexon-proxy.conf`.
 
 ```bash
-sudo mkdir -p /var/www && sudo chown $USER /var/www
-cd /var/www
-git clone https://github.com/firefish46/aexon-web.git
+# 4. Switch to the cPanel user
+su -s /bin/bash - $U
+```
+
+Now, as that user:
+
+```bash
+cd ~
+git clone https://github.com/firefish46/Aexon-web.git aexon-web
 cd aexon-web
-git checkout main   # or the branch you deploy from
-```
-
-## 4. Configure email for the quote form
-
-```bash
-cp .env.example .env.production
-nano .env.production
-```
-
-Fill in the SMTP details from your email provider. Quote requests are sent to `cmo@dmebd.com`, and the visitor's address is set as reply-to, so you can answer them directly.
-
-If the SMTP settings are missing, the form shows visitors an error with your phone number instead of losing their request.
-
-## 5. Build and start
-
-```bash
+cp .env.example .env.production && chmod 600 .env.production
+nano .env.production        # put in the website@aexon.uk mailbox password, then Ctrl+O, Enter, Ctrl+X
 npm ci
 npm run build
 pm2 start ecosystem.config.cjs
 pm2 save
-pm2 startup        # run the command it prints, so the site restarts after a reboot
+curl -sI http://127.0.0.1:3100 | head -1     # expect: HTTP/1.1 200 OK
+exit                                         # back to root
 ```
 
-The app now listens on `127.0.0.1:3000`. It is not reachable from outside until Nginx is set up.
-
-## 6. Nginx and HTTPS
+Back as root:
 
 ```bash
-sudo cp deploy/nginx-aexon.conf /etc/nginx/sites-available/aexon
-sudo ln -s /etc/nginx/sites-available/aexon /etc/nginx/sites-enabled/aexon
-sudo rm -f /etc/nginx/sites-enabled/default
-sudo nginx -t && sudo systemctl reload nginx
+# 5. Start the app automatically after a reboot
+pm2 startup systemd -u $U --hp /home/$U
 
-# Free TLS certificate, auto renewing
-sudo apt-get install -y certbot python3-certbot-nginx
-sudo certbot --nginx -d aexon.uk -d www.aexon.uk --redirect
+# 6. Send aexon.uk traffic from Apache to the app
+for t in ssl std; do
+  mkdir -p /etc/apache2/conf.d/userdata/$t/2_4/$U/aexon.uk
+  cp /home/$U/aexon-web/deploy/apache-aexon-proxy.conf /etc/apache2/conf.d/userdata/$t/2_4/$U/aexon.uk/aexon-proxy.conf
+done
+/scripts/ensure_vhost_includes --user=$U
+/scripts/rebuildhttpdconf && /scripts/restartsrv_httpd
+
+# 7. Test, bypassing Cloudflare
+curl -skI --resolve aexon.uk:443:144.79.249.12 https://aexon.uk | head -3
 ```
 
-If the old site is served by Apache or another Nginx config on the same server, disable it first so the two do not both claim port 80.
+Then finish in cPanel and Cloudflare:
 
-## 7. Firewall
+- Create the `website@aexon.uk` mailbox and set **Email Routing** to Local (steps 2–3).
+- Run **AutoSSL** (step 4). If it fails for `aexon.uk` or `www`, switch those two
+  Cloudflare records to DNS only, run it again, then switch them back to Proxied.
+- Apply the Cloudflare settings in step 7.
+
+### C. Update the site later (root Terminal)
 
 ```bash
-sudo ufw allow OpenSSH
-sudo ufw allow 'Nginx Full'
-sudo ufw enable
+U=$(/scripts/whoowns aexon.uk)
+su -s /bin/bash - $U -c 'cd ~/aexon-web && ./deploy/update.sh'
 ```
+
+The sections below explain each step in more detail.
+
+---
+
+## What you need first
+
+| Item | Where to find it | Written below as |
+|---|---|---|
+| Server IPv4 address | WHM home page, or your VPS provider | `SERVER_IP` |
+| Server IPv6 address, if it has one | same | `SERVER_IPV6` |
+| cPanel username of the aexon.uk package | WHM > List Accounts | `CPANELUSER` |
+| A free local port for the app | step 5 | `3100` |
+
+---
+
+## 1. Cloudflare DNS
+
+Cloudflare > aexon.uk > **DNS > Records**. First delete any records Cloudflare added
+on purchase (parking A records, a default MX). Then add these.
+
+Start with **every record set to "DNS only" (grey cloud)**. You switch the website
+records to "Proxied" in step 7, after the server has its SSL certificate.
+
+| Type | Name | Content | Proxy | Notes |
+|---|---|---|---|---|
+| A | `@` | `SERVER_IP` | DNS only (later Proxied) | the website |
+| CNAME | `www` | `aexon.uk` | DNS only (later Proxied) | |
+| A | `mail` | `SERVER_IP` | **DNS only, always** | email can't pass through Cloudflare's proxy |
+| MX | `@` | `mail.aexon.uk` | – | priority `10` |
+| TXT | `@` | SPF, copied from cPanel in step 3 | – | |
+| TXT | `default._domainkey` | DKIM, copied from cPanel in step 3 | – | |
+| TXT | `_dmarc` | `v=DMARC1; p=none; rua=mailto:postmaster@aexon.uk` | – | tighten to `p=quarantine` after a few weeks of good reports |
+| A | `webmail` | `SERVER_IP` | DNS only | optional: webmail.aexon.uk |
+| A | `autodiscover`, `autoconfig` | `SERVER_IP` | DNS only | optional: lets Outlook and phones set up mail automatically |
+| AAAA | `@`, `mail` | `SERVER_IPV6` | same as the A records | only if the server has IPv6 |
+
+Check from any computer (results can take a few minutes):
+
+```bash
+nslookup aexon.uk 1.1.1.1
+nslookup -type=mx aexon.uk 1.1.1.1
+```
+
+---
+
+## 2. WHM / cPanel account checks
+
+**In WHM, as root:**
+
+1. **List Accounts:** confirm the package's primary domain is `aexon.uk`.
+2. **Manage Shell Access:** set `CPANELUSER` to **Normal Shell**, so you can run
+   Node and PM2 as that user. If your other sites run PM2 as root instead, keep
+   doing it the same way they do. The steps are identical apart from the user.
+3. **Node.js version:** run `node -v` as that user. Next.js 16 needs **20.9 or newer**.
+   If it is older, install Node 22 the same way your other sites got theirs. On
+   cPanel that is often EasyApache 4's `ea-nodejs22` package, at
+   `/opt/cpanel/ea-nodejs22/bin`.
+4. **Apache proxy modules:** run `httpd -M | grep -E "proxy_module|proxy_http|headers"`.
+   You need `proxy_module`, `proxy_http_module` and `headers_module`. Your other
+   Next.js sites almost certainly use them already. If not: WHM > EasyApache 4 >
+   Customize > Apache Modules > enable `mod_proxy`, `mod_proxy_http` and `mod_headers`.
+
+**In cPanel for `CPANELUSER`:**
+
+5. **Email Routing** (under Email): choose **Local Mail Exchanger**. cPanel can't see
+   Cloudflare's DNS, so it may guess "Remote" and send aexon.uk mail away from the
+   server. This step matters.
+
+---
+
+## 3. Email accounts and deliverability
+
+cPanel > **Email Accounts**, create:
+
+- `website@aexon.uk`: the website sends quote requests from this mailbox.
+- Any real mailboxes you want, for example `sales@aexon.uk` or `postmaster@aexon.uk`
+  (the latter receives the DMARC reports).
+
+cPanel > **Email Deliverability** > aexon.uk > **Manage**:
+
+- Copy the suggested **SPF** value (it looks like `v=spf1 +a +mx +ip4:SERVER_IP ~all`)
+  into the Cloudflare TXT record for `@`.
+- Copy the **DKIM** value into the Cloudflare TXT record named `default._domainkey`.
+  It is long; paste it as one value and Cloudflare will split it as needed.
+- Wait a few minutes and reload the page. It should show both as **Valid**. cPanel
+  may still warn that "the server is not authoritative". That is expected with
+  Cloudflare DNS and can be ignored.
+
+**Reverse DNS (PTR).** This is set once for the whole server at your VPS provider,
+usually to the server's hostname. It is shared with your other sites, so leave it
+as it is if their mail already delivers well.
+
+---
+
+## 4. SSL certificate on the server
+
+With the records still on DNS only, in WHM > **Manage AutoSSL** > **Manage Users**,
+run AutoSSL for `CPANELUSER`. Then check cPanel > **SSL/TLS Status**: `aexon.uk`,
+`www.aexon.uk` and `mail.aexon.uk` should all show a valid certificate.
+
+The website certificate lets Cloudflare connect to the server securely. The mail
+certificate is what phones and Outlook see, and what the app checks when it sends
+quote emails.
+
+---
+
+## 5. Put the app on the server
+
+### 5a. Choose a port
+
+Each Next.js site on the server needs its own port. As root, list the ones in use:
+
+```bash
+ss -ltnp | grep 127.0.0.1
+```
+
+Pick a free one; this guide uses **3100**. If you choose a different port, change it
+in `ecosystem.config.cjs` and `deploy/apache-aexon-proxy.conf`.
+
+### 5b. Upload the code
+
+The app lives **outside** `public_html`, in `/home/CPANELUSER/aexon-web`.
+
+**If the project is in a Git repository** (recommended), as `CPANELUSER`:
+
+```bash
+cd ~
+git clone <your repo URL> aexon-web
+```
+
+**Otherwise, upload a zip.** On your Windows PC, in PowerShell:
+
+```powershell
+cd C:\VSCODE
+tar -czf aexon-web.tar.gz --exclude=node_modules --exclude=.next --exclude=".env" --exclude=".env.production" --exclude="Laser Pro Printer_*" aexon-web
+```
+
+Upload `aexon-web.tar.gz` to `/home/CPANELUSER/` with cPanel **File Manager**. Then,
+in a shell as `CPANELUSER`:
+
+```bash
+cd ~ && tar -xzf aexon-web.tar.gz && rm aexon-web.tar.gz
+```
+
+### 5c. Settings for the quote form
+
+```bash
+cd ~/aexon-web
+cp .env.example .env.production
+nano .env.production
+```
+
+Fill in the password of `website@aexon.uk`. The other values are already right
+for this server:
+
+- **Host:** the app sends through `127.0.0.1`, the mail server on the same machine.
+  That keeps it clear of WHM's "SMTP Restrictions", which block apps from connecting
+  out to mail servers.
+- **Certificate:** it is still checked against `mail.aexon.uk`.
+- **Recipient:** requests go to `QUOTE_TO` (cmo@dmebd.com), and the visitor's
+  address is set as reply-to.
+
+Then `chmod 600 .env.production` so only this user can read the password.
+
+### 5d. Build and start
+
+```bash
+cd ~/aexon-web
+npm ci
+npm run build
+pm2 start ecosystem.config.cjs
+pm2 save
+pm2 startup     # prints one command: run that command as root, so the app starts after a reboot
+```
+
+Check it from the server itself:
+
+```bash
+curl -I http://127.0.0.1:3100
+```
+
+You should see `HTTP/1.1 200 OK`. If the build stops with an out-of-memory error,
+run it as `NODE_OPTIONS=--max-old-space-size=2048 npm run build`.
+
+---
+
+## 6. Point Apache at the app
+
+cPanel regenerates Apache's config, so the proxy goes in cPanel's include folders.
+As root, replacing `CPANELUSER`:
+
+```bash
+U=CPANELUSER
+for t in ssl std; do
+  mkdir -p /etc/apache2/conf.d/userdata/$t/2_4/$U/aexon.uk
+  cp /home/$U/aexon-web/deploy/apache-aexon-proxy.conf /etc/apache2/conf.d/userdata/$t/2_4/$U/aexon.uk/aexon-proxy.conf
+done
+/scripts/ensure_vhost_includes --user=$U
+/scripts/rebuildhttpdconf && /scripts/restartsrv_httpd
+```
+
+Test from the server, bypassing Cloudflare:
+
+```bash
+curl -I --resolve aexon.uk:443:SERVER_IP https://aexon.uk
+```
+
+It should answer `200` with `x-powered-by: Next.js`.
+
+---
+
+## 7. Turn on Cloudflare
+
+In Cloudflare > aexon.uk:
+
+1. **DNS > Records:** switch `@` and `www` to **Proxied** (orange cloud). Leave `mail`,
+   `webmail`, `autodiscover` and `autoconfig` on DNS only.
+2. **SSL/TLS > Overview:** set the encryption mode to **Full (strict)**. Never use
+   "Flexible": with Flexible, Cloudflare talks to your server over plain HTTP.
+3. **SSL/TLS > Edge Certificates:** turn on **Always Use HTTPS**.
+4. **Speed > Optimization:** make sure **Rocket Loader** is **off**. It rewrites
+   scripts and can break the 3D viewer and the slider.
+
+Leave caching on its defaults. Cloudflare caches the `/_next/static` files, and the
+app already marks them as safe to cache for a year.
+
+---
+
+## 8. Final checks
+
+| Check | How |
+|---|---|
+| Site loads over HTTPS | open https://aexon.uk and https://www.aexon.uk |
+| 3D model and slider work | Laser Pro page and home page |
+| Quote form delivers | submit it, then check the inbox at cmo@dmebd.com. Errors appear in `pm2 logs aexon-web` |
+| Mail is trusted | send a mail from webmail to the address shown at https://www.mail-tester.com, aiming for 9/10 or better |
+| Mail reaches you | send a mail from Gmail to `sales@aexon.uk` and read it in webmail |
+
+---
 
 ## Updating the site later
 
+As `CPANELUSER`:
+
 ```bash
-cd /var/www/aexon-web
-./deploy/update.sh
+cd ~/aexon-web
+./deploy/update.sh      # with Git: pulls, installs, builds, reloads
 ```
 
-## Useful commands
+Without Git: upload the new code as in step 5b. It won't overwrite `.env.production`,
+because the zip leaves it out. Then run `npm ci && npm run build && pm2 reload aexon-web`.
 
-| Task | Command |
+## Troubleshooting
+
+| Symptom | Likely cause |
 |---|---|
-| See logs, including quote delivery errors | `pm2 logs aexon-web` |
+| Cloudflare error 521 | the app is not running (`pm2 status`), or Apache isn't proxying it (step 6) |
+| Cloudflare error 526 | SSL mode is Full (strict) but the server certificate is missing; rerun AutoSSL (step 4) |
+| Redirect loop | SSL mode set to Flexible; use Full (strict) |
+| Another site shows up at aexon.uk | the proxy include is in the wrong folder, or `rebuildhttpdconf` wasn't run |
+| Form says "could not deliver" | wrong mailbox password in `.env.production`, or the mail certificate doesn't cover `mail.aexon.uk` yet |
+| Mail to @aexon.uk never arrives | Email Routing isn't set to Local (step 2), or the MX record is missing |
+| Sent mail lands in spam | SPF or DKIM isn't Valid in Email Deliverability (step 3) |
+
+| Task | Command (as `CPANELUSER`) |
+|---|---|
+| Logs, including quote delivery errors | `pm2 logs aexon-web` |
 | Restart | `pm2 restart aexon-web` |
 | Status | `pm2 status` |
-| Test the form email | Submit the form on the live site, then check `pm2 logs` |

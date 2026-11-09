@@ -52,7 +52,7 @@
   height: 32px;
   margin-left: -28%;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.9);
+  background: var(--floor-shadow);
   filter: blur(18px);
   pointer-events: none;
 }
@@ -143,7 +143,7 @@
   align-items: center;
   gap: var(--s-75);
   padding: var(--s-50) var(--s-100);
-  background: rgba(39, 39, 39, 0.8);
+  background: var(--chip);
   backdrop-filter: blur(8px);
   border-radius: var(--r-full);
   color: var(--text-muted);

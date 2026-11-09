@@ -33,8 +33,32 @@ export type Hotspot = {
   /** position on the product photo, in percent */
   x: number;
   y: number;
+  /** surface point on the 3D model, "x y z" in model units; used when the product has a model */
+  position?: string;
+  /** surface normal at that point, "x y z" */
+  normal?: string;
   title: string;
   body: string;
+};
+
+export type ChipShowcase = {
+  image: string;
+  alt: string;
+  title: string;
+  body: string;
+  /** what the controller does, in order; shown as the data path in the animation */
+  steps: { title: string; body: string }[];
+};
+
+export type ConsoleTour = {
+  image: string;
+  imageWidth: number;
+  imageHeight: number;
+  alt: string;
+  title: string;
+  body: string;
+  /** parts of the screen; rect is [left, top, width, height] in percent of the image */
+  regions: { title: string; body: string; rect: [number, number, number, number] }[];
 };
 
 export type Product = {
@@ -47,8 +71,14 @@ export type Product = {
   imageWidth: number;
   imageHeight: number;
   alt: string;
+  /** optional GLB model, shown in place of the photo when present */
+  model?: string;
   highlights: { title: string; body: string }[];
   hotspots: Hotspot[];
+  /** optional "inside the machine" section with the main board controller */
+  chip?: ChipShowcase;
+  /** optional guided tour of the touchscreen */
+  console?: ConsoleTour;
   specs: { label: string; value: string | null }[];
 };
 
@@ -138,6 +168,7 @@ export const products: Product[] = [
     image: "/products/laser-pro.png",
     imageWidth: 712,
     imageHeight: 731,
+    model: "/models/laser-pro.glb",
     alt: "Aexon Laser Pro direct dry imager, a compact white and black unit with a touchscreen on the output tray",
     highlights: [
       {
@@ -161,22 +192,78 @@ export const products: Product[] = [
       {
         x: 50,
         y: 32,
+        position: "-0.498m 0.299m 0.474m",
+        normal: "0m 1m 0m",
         title: "Output tray",
         body: "Film lands on the front tray, dry and ready to read.",
       },
       {
         x: 49,
         y: 52,
+        position: "-0.027m 0.233m 0.666m",
+        normal: "0m 1m 0.04m",
         title: "Touchscreen console",
         body: "Shows Online, Alert, Fault and Active status at a glance.",
       },
       {
         x: 50,
         y: 86,
+        position: "0.4m -0.2m 0.97m",
+        normal: "0m 0m 1m",
         title: "Two supply trays",
         body: "100 sheets in each tray, loaded from the front.",
       },
     ],
+    chip: {
+      image: "/products/laser-pro/dascom-chip.webp",
+      alt: "DASCOM DS1301 controller chip on the Laser Pro main board",
+      title: "One controller runs every print",
+      body: "At the centre of the Laser Pro main board sits a DASCOM DS1301 controller. Every image you send passes through it on the way to film.",
+      steps: [
+        {
+          title: "Receives",
+          body: "Images arrive from your PACS or modality over DICOM 3.0 on the Ethernet port.",
+        },
+        {
+          title: "Processes",
+          body: "Each image is prepared for film in 14 bit greyscale, with automatic calibration keeping density consistent.",
+        },
+        {
+          title: "Prints",
+          body: "The print engine writes the film at 508 dpi, with the first sheet out in 75 seconds or less.",
+        },
+      ],
+    },
+    console: {
+      image: "/products/laser-pro/touch-console.webp",
+      imageWidth: 1600,
+      imageHeight: 860,
+      alt: "Laser Pro touchscreen showing printer status, upper and lower tray status, the print queue by film size, and Settings, Maintain and Open buttons",
+      title: "Everything you need, on the printer itself",
+      body: "The touchscreen shows what the imager is doing and what is waiting, so staff rarely need to walk back to a workstation.",
+      regions: [
+        {
+          title: "Printer status",
+          body: "Current state, the sending device and pages in the job, with a button to pause printing.",
+          rect: [1.8, 0.4, 47.4, 96.4],
+        },
+        {
+          title: "Tray status",
+          body: "Upper and lower trays read the film's RF tag and show the size that is loaded.",
+          rect: [50.8, 0.8, 46.9, 26.4],
+        },
+        {
+          title: "Print queue",
+          body: "Sheets waiting for each film size: 8×10, 10×12, 11×14 and 14×17 in.",
+          rect: [50.4, 31, 47.8, 37.6],
+        },
+        {
+          title: "One touch controls",
+          body: "Settings, maintenance and tray release, each a single tap away.",
+          rect: [51.4, 71, 46.4, 25.6],
+        },
+      ],
+    },
     specs: [
       { label: "Print technology", value: "Direct dry imaging, operates in room light" },
       { label: "Resolution", value: "508 dpi" },

@@ -1,0 +1,301 @@
+.section {
+  overflow-x: clip;
+}
+
+.head {
+  margin-inline: auto;
+  justify-items: center;
+  text-align: center;
+  margin-bottom: var(--s-400);
+}
+
+/* ---------- 3D scene ---------- */
+
+.scene {
+  --board: min(560px, 64vw);
+  --in: #6fd6ff;
+  --out: #ffb35c;
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: calc(var(--board) * 0.86);
+  perspective: 1600px;
+  perspective-origin: 50% 30%;
+}
+
+/* The board lies back like a part on a bench; the pointer tilts it a little more */
+.board {
+  position: relative;
+  width: var(--board);
+  aspect-ratio: 1;
+  transform-style: preserve-3d;
+  transform:
+    rotateX(calc(52deg + var(--tilt-x, 0deg)))
+    rotateZ(calc(-32deg + var(--tilt-y, 0deg)));
+  animation: hover 7s var(--ease) infinite alternate;
+}
+
+/* Fade the photo and traces out at the edges so the board floats on the page.
+   Masked individually: a mask on .board would flatten the raised chip. */
+.photo,
+.traces {
+  -webkit-mask-image:
+    linear-gradient(to right, transparent, #000 14%, #000 86%, transparent),
+    linear-gradient(to bottom, transparent, #000 14%, #000 86%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right, transparent, #000 14%, #000 86%, transparent),
+    linear-gradient(to bottom, transparent, #000 14%, #000 86%, transparent);
+  mask-composite: intersect;
+}
+
+@keyframes hover {
+  from { translate: 0 0 0; }
+  to { translate: 0 0 18px; }
+}
+
+.photo {
+  object-fit: cover;
+  /* dimmed so the glow reads clearly */
+  filter: brightness(0.5) saturate(0.85);
+  pointer-events: none;
+  user-select: none;
+}
+
+.traces {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transform: translateZ(1px);
+}
+
+.line {
+  fill: none;
+  stroke: var(--in);
+  stroke-opacity: 0.45;
+  stroke-width: 0.45;
+  stroke-linejoin: round;
+}
+
+.line[data-tone="b"] {
+  stroke: var(--out);
+}
+
+/* A short dash that runs along the trace: the electron */
+.electron {
+  fill: none;
+  stroke: #e9fbff;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-dasharray: 7 107;
+  stroke-dashoffset: 7;
+  animation: flow 2.4s linear infinite;
+}
+
+.electron[data-tone="a"] {
+  stroke: #c9f2ff;
+}
+
+.electron[data-tone="b"] {
+  stroke: #ffe1b8;
+}
+
+@keyframes flow {
+  from { stroke-dashoffset: 7; }
+  to { stroke-dashoffset: -100; }
+}
+
+/* ---------- chip package ---------- */
+
+/* Matches the chip body in the photo: 23.6% left, 25.4% top, 52.1% × 48.9% */
+.pkg {
+  position: absolute;
+  left: 23.6%;
+  top: 25.4%;
+  width: 52.1%;
+  height: 48.9%;
+  transform-style: preserve-3d;
+}
+
+.edge {
+  position: absolute;
+  inset: 0;
+  border-radius: 2%;
+  background: #141416;
+  transform: translateZ(var(--z));
+}
+
+.top {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 2%;
+  background-size: 191.9% 204.5%;
+  background-position: 49.3% 49.7%;
+  transform: translateZ(14px);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 0 40px rgba(111, 214, 255, 0.25);
+}
+
+/* Soft light from inside the package, pulsing as data goes through */
+.core {
+  position: absolute;
+  inset: 10%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(111, 214, 255, 0.55), transparent);
+  mix-blend-mode: screen;
+  animation: pulse 2.4s var(--ease) infinite alternate;
+}
+
+@keyframes pulse {
+  from { opacity: 0.15; transform: scale(0.85); }
+  to { opacity: 0.55; transform: scale(1.05); }
+}
+
+.ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 3px var(--in));
+}
+
+.ringTrack,
+.ringPulse {
+  fill: none;
+}
+
+.ringTrack {
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-width: 0.6;
+}
+
+.ringPulse {
+  stroke: var(--in);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-dasharray: 10 90;
+  animation: orbit 4s linear infinite;
+}
+
+@keyframes orbit {
+  from { stroke-dashoffset: 0; }
+  to { stroke-dashoffset: -100; }
+}
+
+/* ---------- labels on either side ---------- */
+
+.tag {
+  position: absolute;
+  top: 46%;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-75);
+  padding: var(--s-50) var(--s-100);
+  border: 1px solid var(--line);
+  border-radius: var(--r-full);
+  background: var(--chip);
+  backdrop-filter: blur(8px);
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.tagIn {
+  left: max(var(--gutter), calc(50% - var(--board) * 0.95));
+}
+
+.tagOut {
+  right: max(var(--gutter), calc(50% - var(--board) * 0.95));
+}
+
+.tagDot {
+  width: var(--s-75);
+  height: var(--s-75);
+  border-radius: var(--r-full);
+  background: var(--in);
+  box-shadow: 0 0 10px var(--in);
+}
+
+.tagOut .tagDot {
+  background: var(--out);
+  box-shadow: 0 0 10px var(--out);
+}
+
+/* ---------- steps ---------- */
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--s-200);
+  max-width: 960px;
+  margin: var(--s-400) auto 0;
+  list-style: none;
+  counter-reset: none;
+}
+
+.step {
+  display: grid;
+  align-content: start;
+  gap: var(--s-75);
+  padding: var(--s-300);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-2xl);
+}
+
+.step:first-child {
+  box-shadow: inset 0 2px 0 #6fd6ff;
+}
+
+.step:nth-child(2) {
+  box-shadow: inset 0 2px 0 var(--accent);
+}
+
+.step:last-child {
+  box-shadow: inset 0 2px 0 #ffb35c;
+}
+
+.stepNum {
+  color: var(--accent);
+}
+
+@media (max-width: 768px) {
+  .steps {
+    grid-template-columns: 1fr;
+  }
+
+  .scene {
+    --board: min(420px, 72vw);
+  }
+
+  /* On narrow screens the labels sit above and below the board */
+  .tag {
+    top: auto;
+  }
+
+  .tagIn {
+    top: 0;
+    left: var(--gutter);
+  }
+
+  .tagOut {
+    bottom: 0;
+    right: var(--gutter);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .board,
+  .core,
+  .ringPulse {
+    animation: none;
+  }
+
+  .electron {
+    display: none;
+  }
+}

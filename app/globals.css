@@ -41,6 +41,16 @@
   --accent-3: #8bc53f;
   --danger: #ff6b5b;
   --success: #8bc53f;
+  --line-strong: #4a4a4a;
+  --text-inverse: #000000;
+  --primary-hover: #e6e6e6;
+  --tint: rgba(255, 255, 255, 0.06);
+  --tint-strong: rgba(255, 255, 255, 0.08);
+  --glass: rgba(31, 31, 31, 0.72);
+  --glass-line: rgba(255, 255, 255, 0.08);
+  --overlay: rgba(24, 24, 24, 0.94);
+  --chip: rgba(39, 39, 39, 0.8);
+  --floor-shadow: rgba(0, 0, 0, 0.9);
 
   /* Motion */
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -49,6 +59,35 @@
   --gutter: var(--s-300);
 
   color-scheme: dark;
+}
+
+/* Colour, light theme. Set by the theme toggle on <html data-theme="light"> */
+:root[data-theme="light"] {
+  --bg: #f7f7f7;
+  --bg-deep: #ececec;
+  --surface: #ffffff;
+  --surface-2: #f0f0f0;
+  --line: #e0e0e0;
+  --text: #111111;
+  --text-muted: #5c5c5c;
+  --text-dim: rgba(0, 0, 0, 0.35);
+  --accent: #1592d1;
+  --accent-2: #e0670d;
+  --accent-3: #5f9a1c;
+  --danger: #d23a2a;
+  --success: #5f9a1c;
+  --line-strong: #bdbdbd;
+  --text-inverse: #ffffff;
+  --primary-hover: #333333;
+  --tint: rgba(0, 0, 0, 0.05);
+  --tint-strong: rgba(0, 0, 0, 0.07);
+  --glass: rgba(255, 255, 255, 0.72);
+  --glass-line: rgba(0, 0, 0, 0.08);
+  --overlay: rgba(247, 247, 247, 0.95);
+  --chip: rgba(255, 255, 255, 0.85);
+  --floor-shadow: rgba(0, 0, 0, 0.22);
+
+  color-scheme: light;
 }
 
 @media (max-width: 640px) {
@@ -250,7 +289,7 @@ blockquote {
   z-index: 100;
   padding: var(--s-75) var(--s-100);
   background: var(--text);
-  color: #000000;
+  color: var(--text-inverse);
   border-radius: var(--r-lg);
   transform: translateY(-200%);
   transition: transform 300ms var(--ease);
@@ -285,10 +324,10 @@ blockquote {
 
 .btn-primary {
   background: var(--text);
-  color: #000000;
+  color: var(--text-inverse);
 }
 
-.btn-primary:hover { background: #e6e6e6; transform: translateY(-1px); }
+.btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
 .btn-primary:active { transform: scale(0.98); }
 
 .btn-ghost {
@@ -326,7 +365,7 @@ blockquote {
    ========================================================== */
 
 .gradient-text {
-  background-image: linear-gradient(90deg, #ffffff, #9b9b9b);
+  background-image: linear-gradient(90deg, var(--text), var(--text-muted));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -392,4 +431,32 @@ blockquote {
 @media (max-width: 720px) {
   .grid-2,
   .grid-4 { grid-template-columns: 1fr; }
+}
+
+/* ==========================================================
+   Theme switching
+   ========================================================== */
+
+/* Logo variants: white wordmark on dark, dark wordmark on light */
+:root:not([data-theme="light"]) .logo-for-light { display: none; }
+:root[data-theme="light"] .logo-for-dark { display: none; }
+:root[data-theme="light"] .logo-for-light { display: block; }
+
+/* Applied only for a moment while the toggle is pressed */
+.theme-switching,
+.theme-switching *,
+.theme-switching *::before,
+.theme-switching *::after {
+  transition:
+    background-color 300ms var(--ease),
+    border-color 300ms var(--ease),
+    color 300ms var(--ease),
+    fill 300ms var(--ease) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-switching,
+  .theme-switching * {
+    transition: none !important;
+  }
 }

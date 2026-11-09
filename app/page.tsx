@@ -16,6 +16,7 @@ import Reveal from "@/components/Reveal";
 import TaglineReveal from "@/components/TaglineReveal";
 import QuoteForm from "@/components/QuoteForm";
 import Faq from "@/components/Faq";
+import HeroSlider, { type Slide } from "@/components/HeroSlider";
 import { isPlaceholder, products, site, testimonials } from "@/content/site";
 import styles from "./page.module.css";
 
@@ -60,6 +61,49 @@ const steps = [
   },
 ];
 
+const slides: Slide[] = [
+  {
+    eyebrow: "Dry laser film imagers",
+    title: "Two imagers, one standard of film",
+    body: "Laser Prime for busy imaging departments, Laser Pro for clinics and smaller rooms. Both print 508 DPI with 14 bit greyscale.",
+    href: "#products",
+    cta: "Compare the imagers",
+    visual: "duo",
+  },
+  {
+    eyebrow: "Aexon Laser Prime",
+    title: "130 sheets an hour for busy departments",
+    body: "A floor standing dry laser imager with two 150 sheet trays, gigabit DICOM networking and automatic calibration.",
+    href: "/products/laser-prime",
+    cta: "Explore the Laser Prime",
+    visual: "prime",
+  },
+  {
+    eyebrow: "Aexon Laser Pro",
+    title: "508 DPI film in normal room light",
+    body: "A compact direct dry imager that prints 75 sheets an hour and connects to your PACS over DICOM 3.0.",
+    href: "/products/laser-pro",
+    cta: "Explore the Laser Pro",
+    visual: "pro",
+  },
+  {
+    eyebrow: "Inside the Laser Pro",
+    title: "One controller runs every print",
+    body: "A DASCOM DS1301 controller sits at the centre of the main board. Every image you send passes through it on the way to film.",
+    href: "/products/laser-pro#inside",
+    cta: "See how it works",
+    visual: "chip",
+  },
+  {
+    eyebrow: "Touchscreen console",
+    title: "Everything you need, on the printer",
+    body: "Printer status, tray status and the print queue on one screen, with settings and maintenance a tap away.",
+    href: "/products/laser-pro#console",
+    cta: "Take the console tour",
+    visual: "console",
+  },
+];
+
 const facts = [
   { value: "UK", label: "Designed and manufactured in Middlesbrough" },
   { value: "508 DPI", label: "Print resolution on both imagers, with 14 bit greyscale" },
@@ -74,7 +118,9 @@ export default function Home() {
 
   return (
     <>
-      {/* 1. Hero */}
+      {/* 1. Hero: full width slider, then the headline and quote button */}
+      <HeroSlider slides={slides} prime={prime} pro={pro} chipImage={pro.chip?.image ?? pro.image} />
+
       <section className={styles.hero} aria-labelledby="hero-title">
         <div className="container">
           <div className={styles.heroCopy}>
@@ -97,17 +143,6 @@ export default function Home() {
               <li className="caption-4 muted"><Check size={14} weight="bold" aria-hidden /> UK manufacturer</li>
             </ul>
           </div>
-
-          <Reveal className={styles.heroStage}>
-            <div className={styles.heroPrime}>
-              <Image src={prime.image} alt={prime.alt} width={prime.imageWidth} height={prime.imageHeight} priority sizes="(max-width: 720px) 50vw, 340px" />
-            </div>
-            <div className={styles.heroPro}>
-              <Image src={pro.image} alt={pro.alt} width={pro.imageWidth} height={pro.imageHeight} priority sizes="(max-width: 720px) 45vw, 320px" />
-            </div>
-            <span className={`caption-4 ${styles.tagPrime}`}>Laser Prime</span>
-            <span className={`caption-4 ${styles.tagPro}`}>Laser Pro</span>
-          </Reveal>
         </div>
       </section>
 
@@ -263,7 +298,7 @@ export default function Home() {
       {/* 8. FAQ */}
       <section className="section" id="faq" aria-labelledby="faq-title">
         <div className={`container ${styles.faqWrap}`}>
-          <Reveal className="section-head">
+          <Reveal className={`section-head ${styles.centerHead}`}>
             <p className="caption-1 eyebrow">FAQ</p>
             <h2 id="faq-title" className="heading-3">Questions buyers ask us</h2>
             <p className="body-3 muted">

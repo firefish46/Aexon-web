@@ -7,6 +7,8 @@ import Product3D from "@/components/Product3D";
 import TiltCard from "@/components/TiltCard";
 import Reveal from "@/components/Reveal";
 import QuoteForm from "@/components/QuoteForm";
+import ChipShowcase from "@/components/ChipShowcase";
+import ConsoleTour from "@/components/ConsoleTour";
 import { getProduct, products, site } from "@/content/site";
 import styles from "./product.module.css";
 
@@ -50,39 +52,62 @@ export default async function ProductPage({ params }: { params: Promise<Params> 
     manufacturer: { "@type": "Organization", name: site.legalName },
   };
 
+  const back = (
+    <Link href="/#products" className={`link-arrow button-sm ${styles.back}`}>
+      <ArrowLeft size={16} weight="bold" aria-hidden /> All products
+    </Link>
+  );
+
+  const title = (
+    <>
+      <p className="caption-1 eyebrow">{product.type}</p>
+      <h1 id="product-title" className="heading-2 gradient-text">{product.name}</h1>
+    </>
+  );
+
+  // withTitle: false when the title is shown above the model instead
+  const info = (withTitle: boolean) => (
+    <div className={styles.info}>
+      {withTitle && title}
+      <p className="title-2">{product.tagline}</p>
+      <p className="body-3 muted">{product.summary}</p>
+
+      <ul className={styles.quick}>
+        {product.highlights.map((h) => (
+          <li key={h.title} className="body-5">
+            <Check size={16} weight="bold" aria-hidden /> {h.title}
+          </li>
+        ))}
+      </ul>
+
+      <a href="#quote" className="btn btn-primary btn-lg button-md">
+        Request a quote <ArrowRight size={16} weight="bold" aria-hidden />
+      </a>
+      <p className="caption-5 muted">No obligation. {site.replyPromise}</p>
+    </div>
+  );
+
   return (
     <>
-      <section className={styles.hero} aria-labelledby="product-title">
-        <div className="container">
-          <Link href="/#products" className={`link-arrow button-sm ${styles.back}`}>
-            <ArrowLeft size={16} weight="bold" aria-hidden /> All products
-          </Link>
-
-          <div className={styles.heroGrid}>
-            <Product3D product={product} />
-
-            <div className={styles.info}>
-              <p className="caption-1 eyebrow">{product.type}</p>
-              <h1 id="product-title" className="heading-2 gradient-text">{product.name}</h1>
-              <p className="title-2">{product.tagline}</p>
-              <p className="body-3 muted">{product.summary}</p>
-
-              <ul className={styles.quick}>
-                {product.highlights.map((h) => (
-                  <li key={h.title} className="body-5">
-                    <Check size={16} weight="bold" aria-hidden /> {h.title}
-                  </li>
-                ))}
-              </ul>
-
-              <a href="#quote" className="btn btn-primary btn-lg button-md">
-                Request a quote <ArrowRight size={16} weight="bold" aria-hidden />
-              </a>
-              <p className="caption-5 muted">No obligation. {site.replyPromise}</p>
+      {product.model ? (
+        // Product name above a full screen model, the rest of the copy centred underneath
+        <section className={`${styles.hero} ${styles.heroFull}`} aria-labelledby="product-title">
+          <div className={`container ${styles.backRow}`}>{back}</div>
+          <div className={`container ${styles.titleCenter}`}>{title}</div>
+          <Product3D product={product} />
+          <div className={`container ${styles.infoCenter}`}>{info(false)}</div>
+        </section>
+      ) : (
+        <section className={styles.hero} aria-labelledby="product-title">
+          <div className="container">
+            {back}
+            <div className={styles.heroGrid}>
+              <Product3D product={product} />
+              {info(true)}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <section className="section" aria-labelledby="features-title">
         <div className="container">
@@ -104,9 +129,12 @@ export default async function ProductPage({ params }: { params: Promise<Params> 
         </div>
       </section>
 
+      {product.chip && <ChipShowcase chip={product.chip} />}
+      {product.console && <ConsoleTour tour={product.console} />}
+
       <section className="section" aria-labelledby="specs-title">
         <div className={`container ${styles.specWrap}`}>
-          <Reveal className="section-head">
+          <Reveal className={`section-head ${styles.centerHead}`}>
             <p className="caption-1 eyebrow">Specifications</p>
             <h2 id="specs-title" className="heading-3">{product.name} at a glance</h2>
             <p className="body-3 muted">
@@ -148,7 +176,7 @@ export default async function ProductPage({ params }: { params: Promise<Params> 
 
       <section className="section" id="quote" aria-labelledby="quote-title">
         <div className={`container ${styles.quoteWrap}`}>
-          <Reveal className={styles.quoteCopy}>
+          <Reveal className={`${styles.quoteCopy} ${styles.centerHead}`}>
             <p className="caption-1 eyebrow">Request a quote</p>
             <h2 id="quote-title" className="heading-3">Get pricing for the {product.name.replace("Aexon ", "")}</h2>
             <p className="body-3 muted">

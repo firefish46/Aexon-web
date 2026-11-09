@@ -1,0 +1,59 @@
+.toggle {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: var(--s-500);
+  height: var(--s-500);
+  border: 0;
+  border-radius: var(--r-lg);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    color 300ms var(--ease),
+    background-color 300ms var(--ease);
+}
+
+.toggle:hover {
+  color: var(--text);
+  background: var(--tint);
+}
+
+.toggle:active {
+  transform: scale(0.96);
+}
+
+/* Both icons sit in the same spot; the inactive one rotates out */
+.sun,
+.moon {
+  grid-area: 1 / 1;
+  transition:
+    transform 500ms var(--ease),
+    opacity 300ms var(--ease);
+}
+
+/* Dark theme shows the sun (switch to light) */
+.moon {
+  opacity: 0;
+  transform: rotate(-90deg) scale(0.5);
+}
+
+:global(:root[data-theme="light"]) .toggle .sun {
+  opacity: 0;
+  transform: rotate(90deg) scale(0.5);
+}
+
+:global(:root[data-theme="light"]) .toggle .moon {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sun,
+  .moon {
+    transition: opacity 150ms linear;
+    transform: none !important;
+  }
+}

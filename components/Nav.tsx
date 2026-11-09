@@ -1,9 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import Logo from "./Logo";
+import ThemeToggle from "./ThemeToggle";
 import styles from "./Nav.module.css";
 
 const links = [
@@ -41,7 +42,7 @@ export default function Nav() {
       <header className={styles.wrap}>
         <nav className={styles.bar} aria-label="Main">
           <Link href="/" className={styles.logo} aria-label="Aexon Healthcare home">
-            <Image src="/aexon-logo.png" alt="Aexon Healthcare" width={515} height={152} priority />
+            <Logo priority />
           </Link>
 
           <ul className={styles.links}>
@@ -57,6 +58,8 @@ export default function Nav() {
               </li>
             ))}
           </ul>
+
+          <ThemeToggle className={styles.theme} />
 
           <a href={quoteHref} className={`btn btn-primary button-sm ${styles.cta}`}>
             Request a quote

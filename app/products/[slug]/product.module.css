@@ -46,6 +46,73 @@
   color: var(--accent-3);
 }
 
+/* Full screen model layout: the viewer spans the page, copy sits centred below */
+.heroFull {
+  display: grid;
+  gap: var(--s-100);
+  /* just clears the fixed nav */
+  padding-top: var(--s-800);
+  padding-bottom: var(--s-600);
+  overflow-x: clip;
+}
+
+.heroFull .back {
+  margin-bottom: 0;
+}
+
+/* Wide screens: the back link shares the title's row instead of taking its own */
+@media (min-width: 641px) {
+  .heroFull {
+    position: relative;
+  }
+
+  .heroFull > .backRow {
+    position: absolute;
+    top: var(--s-800);
+    left: 0;
+    right: 0;
+    pointer-events: none;
+  }
+
+  .heroFull > .backRow > * {
+    pointer-events: auto;
+  }
+}
+
+.titleCenter {
+  display: grid;
+  justify-items: center;
+  gap: var(--s-75);
+  text-align: center;
+}
+
+.infoCenter {
+  display: grid;
+  justify-items: center;
+  margin-top: var(--s-75);
+}
+
+.infoCenter .info {
+  justify-items: center;
+  text-align: center;
+  gap: var(--s-100);
+}
+
+.infoCenter .quick {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  column-gap: var(--s-300);
+  margin-block: 0 var(--s-50);
+}
+
+/* Short laptop screens: the checklist repeats the Features section below, so it gives way to the model */
+@media (max-height: 800px), (max-width: 640px) {
+  .infoCenter .quick {
+    display: none;
+  }
+}
+
 @media (max-width: 960px) {
   .heroGrid {
     grid-template-columns: 1fr;
@@ -57,27 +124,34 @@
   color: var(--accent);
 }
 
-/* Specs */
+/* Section heading centred above its content, instead of in a side column */
+.centerHead {
+  margin-inline: auto;
+  justify-items: center;
+  text-align: center;
+}
+
+/* Specs: heading on top, the table below in two columns of rows */
 .specWrap {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
-  gap: var(--s-600);
-  align-items: start;
+  max-width: calc(1040px + var(--gutter) * 2);
 }
 
 .specs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--s-600);
   margin: 0;
-  padding: var(--s-75) var(--s-300);
+  padding: var(--s-75) var(--s-400);
 }
 
 .specRow {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
   gap: var(--s-200);
   padding-block: var(--s-200);
 }
 
-.specRow + .specRow {
+.specRow:nth-child(n + 3) {
   box-shadow: 0 -1px 0 var(--line);
 }
 
@@ -86,10 +160,14 @@
   white-space: pre-line;
 }
 
-@media (max-width: 960px) {
-  .specWrap {
+@media (max-width: 860px) {
+  .specs {
     grid-template-columns: 1fr;
-    gap: 0;
+    padding-inline: var(--s-300);
+  }
+
+  .specRow:nth-child(2) {
+    box-shadow: 0 -1px 0 var(--line);
   }
 }
 
@@ -114,7 +192,7 @@
 
 .other:hover {
   transform: translateY(calc(var(--s-75) * -1));
-  border-color: #4a4a4a;
+  border-color: var(--line-strong);
 }
 
 .other:active {
@@ -158,22 +236,15 @@
   }
 }
 
-/* Quote */
+/* Quote: heading on top, the form centred below */
 .quoteWrap {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
-  gap: var(--s-600);
-  align-items: start;
+  gap: var(--s-500);
+  max-width: calc(760px + var(--gutter) * 2);
 }
 
 .quoteCopy {
   display: grid;
   gap: var(--s-200);
-}
-
-@media (max-width: 960px) {
-  .quoteWrap {
-    grid-template-columns: 1fr;
-    gap: var(--s-400);
-  }
+  max-width: 600px;
 }

@@ -7,3 +7,10 @@ next-env.d.ts
 .DS_Store
 .env
 .env.production
+
+# Source files that are not served (the web versions live in public/)
+/Laser Pro Printer_Meshy_AI_*.glb
+/public/products/laser pro/
+
+# Local editor and Claude Code settings
+/.claude/

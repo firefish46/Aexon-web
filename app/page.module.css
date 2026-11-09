@@ -1,6 +1,7 @@
 /* Hero */
+/* Sits under the full width slider, so it only needs normal section spacing */
 .hero {
-  padding-top: calc(var(--s-900) + var(--s-800));
+  padding-top: var(--s-800);
   padding-bottom: var(--s-700);
 }
 
@@ -40,86 +41,9 @@
   color: var(--accent-3);
 }
 
-.heroStage {
-  position: relative;
-  margin-top: var(--s-700);
-  height: 520px;
-  background: var(--bg-deep);
-  border: 1px solid var(--line);
-  border-radius: var(--r-3xl);
-  overflow: hidden;
-}
-
-.heroPrime,
-.heroPro {
-  position: absolute;
-  bottom: var(--s-600);
-}
-
-.heroPrime {
-  left: 50%;
-  width: 300px;
-  transform: translateX(-90%);
-}
-
-.heroPro {
-  left: 50%;
-  width: 300px;
-  transform: translateX(10%);
-}
-
-.heroPrime img,
-.heroPro img {
-  width: 100%;
-  height: auto;
-}
-
-.tagPrime,
-.tagPro {
-  position: absolute;
-  bottom: var(--s-200);
-  padding: var(--s-50) var(--s-100);
-  border: 1px solid var(--line);
-  border-radius: var(--r-full);
-  color: var(--text-muted);
-}
-
-.tagPrime {
-  left: 50%;
-  transform: translateX(-150%);
-}
-
-.tagPro {
-  left: 50%;
-  transform: translateX(80%);
-}
-
 @media (max-width: 720px) {
   .hero {
-    padding-top: calc(var(--s-900) + var(--s-400));
-  }
-  .heroStage {
-    height: 360px;
-    margin-top: var(--s-600);
-  }
-  .heroPrime {
-    width: 46%;
-    transform: translateX(-92%);
-    bottom: var(--s-600);
-  }
-  .heroPro {
-    width: 44%;
-    transform: translateX(4%);
-    bottom: var(--s-600);
-  }
-  .tagPrime {
-    left: var(--s-200);
-    transform: none;
-  }
-  .tagPro {
-    left: auto;
-    right: var(--s-200);
-    transform: none;
+    padding-top: var(--s-700);
   }
 }
 
@@ -175,7 +99,7 @@
 
 .benefit:hover {
   transform: translateY(calc(var(--s-50) * -1));
-  border-color: #4a4a4a;
+  border-color: var(--line-strong);
 }
 
 .iconBox {
@@ -202,7 +126,7 @@
 
 .product:hover {
   transform: translateY(calc(var(--s-75) * -1));
-  border-color: #4a4a4a;
+  border-color: var(--line-strong);
 }
 
 .product:active {
@@ -357,11 +281,16 @@
 }
 
 /* FAQ */
+/* Title centred on top, questions centred below */
 .faqWrap {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
-  gap: var(--s-600);
-  align-items: start;
+  max-width: calc(800px + var(--gutter) * 2);
+}
+
+.centerHead {
+  margin-inline: auto;
+  justify-items: center;
+  text-align: center;
 }
 
 .inlineLink {
@@ -370,35 +299,27 @@
   text-underline-offset: 3px;
 }
 
-@media (max-width: 960px) {
-  .faqWrap {
-    grid-template-columns: 1fr;
-    gap: 0;
-  }
-}
-
 /* Final CTA */
+/* Heading and promises on top, the form centred below */
 .quoteWrap {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
-  gap: var(--s-600);
-  align-items: start;
+  gap: var(--s-500);
+  max-width: calc(760px + var(--gutter) * 2);
 }
 
 .quoteCopy {
   display: grid;
+  justify-items: center;
   gap: var(--s-200);
+  max-width: 600px;
+  margin-inline: auto;
+  text-align: center;
 }
 
 .assurances {
-  display: grid;
-  gap: var(--s-100);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--s-75) var(--s-300);
   margin-top: var(--s-100);
-}
-
-@media (max-width: 960px) {
-  .quoteWrap {
-    grid-template-columns: 1fr;
-    gap: var(--s-400);
-  }
 }

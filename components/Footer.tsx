@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Logo from "./Logo";
 import Link from "next/link";
 import { isPlaceholder, products, site } from "@/content/site";
 import styles from "./Footer.module.css";
@@ -9,7 +9,7 @@ export default function Footer() {
     <footer className={styles.footer}>
       <div className={`container ${styles.grid}`}>
         <div className={styles.brand}>
-          <Image src="/aexon-logo.png" alt="Aexon Healthcare" width={515} height={152} />
+          <Logo />
           <p className="body-6 muted">
             Dry laser film imagers, designed and manufactured in the UK for modern healthcare facilities.
           </p>

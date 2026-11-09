@@ -1,0 +1,373 @@
+/* Full width, full height slider; the fixed nav floats over its top edge */
+.slider {
+  position: relative;
+  width: 100%;
+  height: clamp(560px, 100svh, 1240px);
+  overflow: hidden;
+  background: var(--bg-deep);
+  touch-action: pan-y;
+}
+
+.track {
+  position: absolute;
+  inset: 0;
+}
+
+/* ---------- slides ---------- */
+
+.slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 900ms var(--ease),
+    visibility 0s linear 900ms;
+  /* soft accent light behind each product */
+  background:
+    radial-gradient(42% 55% at 72% 55%, rgba(31, 162, 230, 0.16), transparent 70%),
+    radial-gradient(30% 40% at 85% 85%, rgba(244, 122, 32, 0.08), transparent 70%);
+}
+
+.slide[data-active="true"] {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 900ms var(--ease);
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  align-items: center;
+  gap: var(--s-600);
+  /* clears the nav at the top and the controls at the bottom */
+  padding-top: var(--s-900);
+  padding-bottom: var(--s-900);
+}
+
+.copy {
+  display: grid;
+  justify-items: start;
+  gap: var(--s-200);
+  max-width: 500px;
+}
+
+.title {
+  color: var(--text);
+}
+
+.body {
+  max-width: 440px;
+}
+
+/* Text rises in after the slide fades */
+.copy > * {
+  opacity: 0;
+  transform: translateY(var(--s-300));
+  transition:
+    opacity 700ms var(--ease),
+    transform 700ms var(--ease);
+}
+
+.slide[data-active="true"] .copy > * {
+  opacity: 1;
+  transform: none;
+}
+
+.slide[data-active="true"] .copy > :nth-child(2) { transition-delay: 80ms; }
+.slide[data-active="true"] .copy > :nth-child(3) { transition-delay: 160ms; }
+.slide[data-active="true"] .copy > :nth-child(4) { transition-delay: 240ms; }
+
+.visual {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 100%;
+  max-height: 640px;
+  transform: translateX(var(--s-600)) scale(0.96);
+  opacity: 0;
+  transition:
+    transform 1100ms var(--ease),
+    opacity 900ms var(--ease);
+}
+
+.slide[data-active="true"] .visual {
+  transform: none;
+  opacity: 1;
+}
+
+/* ---------- visuals ---------- */
+
+.single {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: min(560px, 100%);
+  object-fit: contain;
+  filter: drop-shadow(0 40px 60px rgba(0, 0, 0, 0.45));
+}
+
+.duo {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: var(--s-200);
+  height: min(540px, 100%);
+}
+
+.duoPrime,
+.duoPro {
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 40px 60px rgba(0, 0, 0, 0.45));
+}
+
+.duoPrime {
+  height: 100%;
+  max-width: 48%;
+}
+
+.duoPro {
+  height: 70%;
+  max-width: 48%;
+}
+
+/* Chip slide: the photo fills the right side and fades into the page on the left */
+.photoBg {
+  position: absolute;
+  inset: 0 0 0 30%;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 45%);
+  mask-image: linear-gradient(to right, transparent, #000 45%);
+}
+
+.photoImg {
+  object-fit: cover;
+  object-position: 55% 50%;
+  filter: brightness(0.7) saturate(0.9);
+  transform: scale(1.08);
+  transition: transform 7s linear;
+}
+
+.slide[data-active="true"] .photoImg {
+  transform: scale(1);
+}
+
+.slide[data-visual="chip"] .visual {
+  display: none;
+}
+
+.slide[data-visual="chip"] .copy {
+  position: relative;
+  z-index: 1;
+}
+
+/* Console slide: the screen in a dark bezel, angled slightly */
+.bezel {
+  width: min(620px, 100%);
+  padding: clamp(10px, 1.4vw, 16px);
+  background: linear-gradient(145deg, #2a2a2c, #0b0b0c 60%);
+  border-radius: clamp(14px, 2vw, 24px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 40px 80px -30px rgba(0, 0, 0, 0.7);
+  transform: perspective(1600px) rotateY(-12deg) rotateX(6deg);
+}
+
+.bezelScreen {
+  position: relative;
+  aspect-ratio: 1600 / 860;
+  overflow: hidden;
+  border-radius: clamp(6px, 0.9vw, 10px);
+}
+
+.bezelSvg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------- controls ---------- */
+
+.controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: var(--s-400);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-200);
+  margin-inline: auto;
+}
+
+.dots {
+  display: flex;
+  gap: var(--s-75);
+}
+
+.dot {
+  position: relative;
+  width: var(--s-400);
+  height: var(--s-100);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  transition: width 500ms var(--ease);
+}
+
+/* the visible bar sits in a taller hit area */
+.dot::before,
+.dotFill {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  height: 4px;
+  margin-top: -2px;
+  border-radius: var(--r-full);
+}
+
+.dot::before {
+  content: "";
+  right: 0;
+  background: var(--line-strong);
+  transition: background-color 300ms var(--ease);
+}
+
+.dot:hover::before {
+  background: var(--text-muted);
+}
+
+.dot[data-active="true"] {
+  width: var(--s-800);
+}
+
+.dotFill {
+  right: 0;
+  background: var(--text);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+}
+
+.dot[data-active="true"] .dotFill {
+  transform: scaleX(1);
+}
+
+.dotFill[data-running="true"] {
+  animation: fill linear both;
+}
+
+@keyframes fill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+.buttons {
+  display: flex;
+  gap: var(--s-75);
+}
+
+.btn {
+  display: grid;
+  place-items: center;
+  width: var(--s-500);
+  height: var(--s-500);
+  border: 1px solid var(--line);
+  border-radius: var(--r-full);
+  background: var(--chip);
+  backdrop-filter: blur(8px);
+  color: var(--text);
+  cursor: pointer;
+  transition:
+    background-color 300ms var(--ease),
+    border-color 300ms var(--ease),
+    transform 300ms var(--ease);
+}
+
+.btn:hover {
+  border-color: var(--line-strong);
+}
+
+.btn:active {
+  transform: scale(0.96);
+}
+
+/* ---------- small screens: picture on top, words below ---------- */
+
+@media (max-width: 860px) {
+  .slider {
+    height: clamp(620px, 100svh, 860px);
+  }
+
+  .inner {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr) auto;
+    align-items: stretch;
+    gap: var(--s-300);
+    padding-top: var(--s-800);
+    padding-bottom: calc(var(--s-800) + var(--s-200));
+  }
+
+  .copy {
+    order: 2;
+    justify-items: center;
+    text-align: center;
+    margin-inline: auto;
+  }
+
+  .visual {
+    order: 1;
+    min-height: 0;
+    transform: translateY(var(--s-300)) scale(0.96);
+  }
+
+  .photoBg {
+    inset: 0 0 40% 0;
+    -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent);
+    mask-image: linear-gradient(to bottom, #000 55%, transparent);
+  }
+
+  .slide[data-visual="chip"] .inner {
+    grid-template-rows: 1fr auto;
+  }
+
+  .slide[data-visual="chip"] .visual {
+    display: grid;
+  }
+
+  .controls {
+    bottom: var(--s-300);
+  }
+
+  /* Phones swipe between slides, so the arrows give way; pause stays */
+  .btn[data-arrow] {
+    display: none;
+  }
+
+  .dot {
+    width: var(--s-200);
+  }
+
+  .dot[data-active="true"] {
+    width: var(--s-600);
+  }
+
+  .bezel {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slide,
+  .copy > *,
+  .visual,
+  .photoImg {
+    transition: none;
+  }
+}

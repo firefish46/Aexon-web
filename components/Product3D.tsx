@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowsClockwise, HandGrabbing, Plus, X } from "@phosphor-icons/react";
 import type { Product } from "@/content/site";
+import ProductModel from "./ProductModel";
 import styles from "./Product3D.module.css";
 
 const MAX_Y = 28; // degrees left and right
@@ -18,11 +19,22 @@ const VIEWS = [
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 
 /**
+ * Shows the real GLB model when the product has one, and falls back to the
+ * photo stage if there is no model or it fails to load.
+ */
+export default function Product3D({ product }: { product: Product }) {
+  const [failed, setFailed] = useState(false);
+  const onFail = useCallback(() => setFailed(true), []);
+  if (product.model && !failed) return <ProductModel product={product} onFail={onFail} />;
+  return <PhotoStage product={product} />;
+}
+
+/**
  * A 3D stage for a product photo. Drag, swipe or use arrow keys to turn it.
  * Hotspots float in front of the product on their own depth layer, so they
  * shift with parallax as the product turns.
  */
-export default function Product3D({ product }: { product: Product }) {
+function PhotoStage({ product }: { product: Product }) {
   const stageRef = useRef<HTMLDivElement>(null);
   const objRef = useRef<HTMLDivElement>(null);
   const shadowRef = useRef<HTMLDivElement>(null);

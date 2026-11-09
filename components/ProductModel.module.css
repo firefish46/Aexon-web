@@ -1,0 +1,299 @@
+.root {
+  width: 100%;
+  gap: var(--s-100);
+}
+
+/* Frameless, full width stage: the model sits straight on the page */
+.stage {
+  /* Whatever height is left once the nav, product name, controls and the copy
+     down to the quote button have their space, so all of it fits in one screen */
+  height: clamp(240px, calc(100svh - 420px), 760px);
+  border: 0;
+  border-radius: 0;
+  background: radial-gradient(45% 50% at 50% 50%, rgba(31, 162, 230, 0.08), transparent 70%);
+  overflow: visible;
+  /* model-viewer handles its own drag and touch */
+  cursor: auto;
+  touch-action: auto;
+}
+
+/* Controls sit on the bottom edge of the stage instead of taking their own row */
+.controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  justify-content: center;
+  padding-inline: var(--gutter);
+  pointer-events: none;
+}
+
+.controls > * {
+  pointer-events: auto;
+}
+
+/* Hint sits just above the controls */
+.hint {
+  bottom: calc(var(--s-600) + var(--s-100));
+}
+
+.tools {
+  display: inline-flex;
+  gap: var(--s-75);
+}
+
+/* The canvas stops above the controls band, so the model is framed clear of them */
+.viewer {
+  position: absolute;
+  inset: 0 0 var(--s-600) 0;
+  width: 100%;
+  height: auto;
+  background: transparent;
+  --poster-color: transparent;
+  --progress-bar-color: transparent;
+  opacity: 0;
+  transition: opacity 600ms var(--ease);
+  cursor: grab;
+  outline: none;
+}
+
+.viewer:active {
+  cursor: grabbing;
+}
+
+.viewer:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.viewer[data-loaded="true"] {
+  opacity: 1;
+}
+
+/* ---------- hotspot dots ---------- */
+
+/* Flat dot pinned to the model; model-viewer positions it.
+   Black with a white rim on the light theme, white with a dark rim on the dark theme. */
+.dot {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  padding: 0;
+  border: 3px solid var(--bg);
+  border-radius: var(--r-full);
+  background: var(--text);
+  cursor: pointer;
+  transition:
+    transform 300ms var(--ease),
+    opacity 300ms var(--ease);
+}
+
+.dot:hover {
+  transform: scale(1.2);
+}
+
+.dot:active {
+  transform: scale(0.95);
+}
+
+.dot[data-active="true"] {
+  transform: scale(1.3);
+}
+
+.dot:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 3px;
+}
+
+/* Hidden while the dot faces away from the camera */
+.dot:not([data-visible]) {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.dotPulse {
+  position: absolute;
+  inset: -6px;
+  border-radius: var(--r-full);
+  border: 1.5px solid var(--text);
+  animation: dotPulse 2.4s var(--ease) infinite;
+  pointer-events: none;
+}
+
+.dot[data-active="true"] .dotPulse {
+  animation: none;
+  opacity: 0;
+}
+
+@keyframes dotPulse {
+  from { transform: scale(0.8); opacity: 0.9; }
+  to { transform: scale(1.9); opacity: 0; }
+}
+
+/* ---------- callout ---------- */
+
+.leader {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* Draws itself from the dot out to the card */
+.leaderLine {
+  fill: none;
+  stroke: var(--text);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: draw 500ms var(--ease) forwards;
+  transition: opacity 200ms var(--ease);
+}
+
+.leaderEnd {
+  fill: var(--text);
+  opacity: 0;
+  animation: appear 200ms var(--ease) 400ms forwards;
+  transition: opacity 200ms var(--ease);
+}
+
+@keyframes draw {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes appear {
+  to { opacity: 1; }
+}
+
+/* Position comes from JS (a translate on this element); the inner box animates in */
+.callout {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 5;
+  width: min(280px, calc(100% - var(--s-400)));
+  will-change: transform;
+}
+
+.calloutInner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s-100);
+  padding: var(--s-200);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 20px 40px -16px rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  transform: translateY(6px) scale(0.96);
+  animation: pop 450ms var(--ease) 300ms forwards;
+}
+
+.calloutText {
+  display: grid;
+  gap: var(--s-50);
+}
+
+@keyframes pop {
+  to { opacity: 1; transform: none; }
+}
+
+.loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: var(--s-100);
+  pointer-events: none;
+}
+
+.bar {
+  width: 160px;
+  height: 2px;
+  border-radius: var(--r-full);
+  background: var(--line);
+  overflow: hidden;
+}
+
+.bar span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transform-origin: 0 50%;
+  transition: transform 200ms linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .viewer,
+  .bar span {
+    transition: none;
+  }
+
+  .dotPulse {
+    animation: none;
+    opacity: 0;
+  }
+
+  .leaderLine,
+  .leaderEnd,
+  .calloutInner {
+    animation-duration: 1ms;
+    animation-delay: 0ms;
+  }
+}
+
+/* Phones: the model gets the whole stage and one compact row of controls sits just below it */
+@media (max-width: 640px) {
+  .stage {
+    height: clamp(240px, calc(100svh - 492px), 520px);
+    margin-bottom: var(--s-600);
+  }
+
+  .viewer {
+    inset: 0;
+    height: 100%;
+  }
+
+  .controls {
+    bottom: calc(var(--s-600) * -1);
+    padding-inline: 0;
+  }
+
+  /* Wheel and pinch zoom are off so the page scrolls; dropping the zoom buttons keeps one line */
+  .zoomBtn {
+    display: none;
+  }
+
+  .resetLabel {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .hint {
+    bottom: var(--s-100);
+  }
+}
+
+/* Short laptop screens: a little more room for the model, and no hint chip over it */
+@media (max-height: 800px) and (min-width: 641px) {
+  .stage {
+    height: clamp(260px, calc(100svh - 360px), 760px);
+  }
+
+  .hint {
+    display: none;
+  }
+}

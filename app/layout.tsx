@@ -3,6 +3,7 @@ import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import { themeScript } from "@/components/ThemeToggle";
 import { site } from "@/content/site";
 import "./globals.css";
 
@@ -33,7 +34,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: "#181818",
-  colorScheme: "dark",
+  colorScheme: "dark light",
 };
 
 const orgJsonLd = {
@@ -54,7 +55,12 @@ const orgJsonLd = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en-GB" className={`${GeistSans.variable} ${GeistMono.variable} no-js`}>
+    // The head scripts change the class and theme before hydration
+    <html
+      lang="en-GB"
+      className={`${GeistSans.variable} ${GeistMono.variable} no-js`}
+      suppressHydrationWarning
+    >
       <head>
         {/* Mark JS as available before paint so scroll reveals start hidden */}
         <script
@@ -62,6 +68,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: "document.documentElement.classList.remove('no-js')",
           }}
         />
+        {/* Apply a saved theme before paint so it never flashes */}
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body>
         <a href="#main" className="skip-link button-sm">
