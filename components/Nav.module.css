@@ -14,7 +14,8 @@
   pointer-events: auto;
   display: flex;
   align-items: center;
-  gap: var(--s-300);
+  --bar-gap: var(--s-300);
+  gap: var(--bar-gap);
   padding: var(--s-75) var(--s-75) var(--s-75) var(--s-200);
   background: var(--glass);
   backdrop-filter: blur(16px) saturate(140%);
@@ -23,9 +24,37 @@
   border-radius: var(--r-2xl);
 }
 
+/* The logo keeps its shape; it never gives up width to the buttons */
+.logo {
+  flex: none;
+}
+
 .logo img {
   height: 24px;
   width: auto;
+}
+
+/* Folds away while another quote button is on screen */
+.bar .cta {
+  flex: none;
+  max-width: 200px;
+  overflow: hidden;
+  transition:
+    opacity 300ms var(--ease),
+    max-width 500ms var(--ease),
+    padding 500ms var(--ease),
+    margin 500ms var(--ease),
+    border-width 500ms var(--ease),
+    background-color 300ms var(--ease);
+}
+
+.bar .cta[data-hidden="true"] {
+  max-width: 0;
+  padding-inline: 0;
+  border-width: 0;
+  margin-left: calc(var(--bar-gap) * -1);
+  opacity: 0;
+  pointer-events: none;
 }
 
 .links {
@@ -111,7 +140,7 @@
 
 .panelLinks {
   display: grid;
-  gap: var(--s-300);
+  gap: var(--s-200);
 }
 
 .panelLinks li {
@@ -131,10 +160,6 @@
   color: var(--accent);
 }
 
-.panelLinks li:last-child {
-  margin-top: var(--s-300);
-}
-
 @media (max-width: 860px) {
   .links {
     display: none;
@@ -151,7 +176,29 @@
 
   .bar {
     width: 100%;
-    gap: var(--s-100);
+    --bar-gap: var(--s-100);
+  }
+
+  .panel {
+    padding-top: var(--s-800);
+  }
+}
+
+/* Phones: a tighter bar so the logo and button both fit */
+@media (max-width: 480px) {
+  .bar {
+    --bar-gap: var(--s-50);
+    padding-left: var(--s-100);
+  }
+
+  .logo img {
+    height: 20px;
+  }
+
+  .bar .cta {
+    font-size: 12px;
+    line-height: 16px;
+    padding: var(--s-75);
   }
 }
 
@@ -165,7 +212,8 @@
   .panelLinks li {
     transform: none;
   }
-  .toggle span {
+  .toggle span,
+  .bar .cta {
     transition: none;
   }
 }

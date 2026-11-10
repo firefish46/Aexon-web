@@ -371,3 +371,14 @@
     transition: none;
   }
 }
+
+/* Phones: less room for the words, more for the picture */
+@media (max-width: 480px) {
+  .inner {
+    gap: var(--s-200);
+    padding-bottom: var(--s-800);
+  }
+  .copy {
+    gap: var(--s-100);
+  }
+}

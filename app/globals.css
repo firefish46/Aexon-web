@@ -233,10 +233,24 @@ blockquote {
   .heading-2 { font-size: 36px; line-height: 40px; }
   .heading-3 { font-size: 30px; line-height: 36px; }
 }
+/* Phones: every style steps down again so pages stay compact */
 @media (max-width: 480px) {
-  .heading-1 { font-size: 36px; line-height: 40px; }
-  .heading-2 { font-size: 30px; line-height: 36px; }
-  .heading-3 { font-size: 24px; line-height: 32px; }
+  .heading-1 { font-size: 30px; line-height: 36px; }
+  .heading-2 { font-size: 24px; line-height: 32px; }
+  .heading-3 { font-size: 20px; line-height: 28px; }
+  .heading-4 { font-size: 20px; line-height: 28px; }
+  .heading-5 { font-size: 18px; line-height: 28px; }
+  .heading-6 { font-size: 18px; line-height: 28px; }
+
+  .title-1 { font-size: 18px; line-height: 28px; }
+  .title-2 { font-size: 16px; line-height: 24px; }
+
+  .body-1,
+  .body-2,
+  .body-3 { font-size: 14px; line-height: 20px; }
+
+  .button-lg { font-size: 16px; line-height: 24px; }
+  .button-md { font-size: 14px; line-height: 20px; }
 }
 
 .muted { color: var(--text-muted); }
@@ -258,6 +272,12 @@ blockquote {
 
 @media (max-width: 768px) {
   .section { padding-block: var(--s-700); }
+}
+
+@media (max-width: 480px) {
+  .section { padding-block: var(--s-500); }
+  .section-head { gap: var(--s-75); margin-bottom: var(--s-300); }
+  .btn-lg { padding: var(--s-100) var(--s-200); }
 }
 
 .section-head {
@@ -431,6 +451,11 @@ blockquote {
 @media (max-width: 720px) {
   .grid-2,
   .grid-4 { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+  .grid-2,
+  .grid-4 { gap: var(--s-100); }
 }
 
 /* ==========================================================

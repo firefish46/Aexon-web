@@ -77,8 +77,22 @@
   }
 }
 
+/* Phones: the two link lists stay side by side to keep the footer short */
 @media (max-width: 480px) {
+  .footer {
+    padding-top: var(--s-600);
+    padding-bottom: var(--s-300);
+  }
   .grid {
-    grid-template-columns: 1fr;
+    gap: var(--s-400) var(--s-300);
+  }
+  .contact {
+    grid-column: 1 / -1;
+  }
+  .brand img {
+    height: 24px;
+  }
+  .legal {
+    margin-top: var(--s-500);
   }
 }

@@ -323,3 +323,127 @@
   gap: var(--s-75) var(--s-300);
   margin-top: var(--s-100);
 }
+
+/* ---------- Phones: tighter cards and spacing ---------- */
+@media (max-width: 480px) {
+  .hero {
+    padding-top: var(--s-600);
+    padding-bottom: var(--s-400);
+  }
+
+  .heroCopy {
+    gap: var(--s-200);
+  }
+
+  .proof {
+    gap: var(--s-75) var(--s-200);
+  }
+
+  .compare {
+    gap: var(--s-100);
+    padding: var(--s-200);
+  }
+
+  .compareList {
+    gap: var(--s-75);
+  }
+
+  .compareList li {
+    padding-left: var(--s-200);
+  }
+
+  .compareList li::before {
+    top: 6px;
+  }
+
+  /* Benefit: icon on the left, words beside it */
+  .benefit {
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: var(--s-100);
+    row-gap: var(--s-50);
+    padding: var(--s-200);
+  }
+
+  .iconBox {
+    grid-row: 1 / span 2;
+    width: var(--s-500);
+    height: var(--s-500);
+    margin-bottom: 0;
+    border-radius: var(--r-lg);
+  }
+
+  /* Product: picture on the left, words beside it */
+  .product {
+    grid-template-columns: 112px minmax(0, 1fr);
+    gap: var(--s-100);
+  }
+
+  .productImg {
+    height: 100%;
+    min-height: 128px;
+    padding: 0;
+  }
+
+  .productImg img {
+    inset: var(--s-75);
+    width: calc(100% - var(--s-200));
+    height: calc(100% - var(--s-200));
+  }
+
+  .productBody {
+    gap: var(--s-50);
+    padding: var(--s-75) var(--s-75) var(--s-75) 0;
+  }
+
+  .productBody :global(.link-arrow) {
+    margin-top: var(--s-50);
+  }
+
+  .steps {
+    gap: var(--s-100);
+  }
+
+  /* Step: the icon moves to the corner so the card is shorter */
+  .step {
+    position: relative;
+    gap: var(--s-50);
+    padding: var(--s-200);
+  }
+
+  .step .stepIcon {
+    position: absolute;
+    top: var(--s-200);
+    right: var(--s-200);
+    margin: 0;
+  }
+
+  .facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s-100);
+  }
+
+  .fact {
+    gap: var(--s-50);
+    padding: var(--s-200);
+    border-radius: var(--r-xl);
+  }
+
+  .quotes,
+  .partner {
+    margin-top: var(--s-100);
+  }
+
+  .quote,
+  .partner {
+    padding: var(--s-200);
+    gap: var(--s-100);
+  }
+
+  .quoteWrap {
+    gap: var(--s-300);
+  }
+
+  .quoteCopy {
+    gap: var(--s-100);
+  }
+}

@@ -17,6 +17,8 @@ const links = [
 export default function Nav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  // True while another "Request a quote" button, or the form itself, is on screen
+  const [quoteOnScreen, setQuoteOnScreen] = useState(false);
 
   const hasQuoteForm = pathname === "/" || pathname.startsWith("/products/");
   const quoteHref = hasQuoteForm ? "#quote" : "/#quote";
@@ -34,6 +36,30 @@ export default function Nav() {
       window.removeEventListener("keydown", onKey);
     };
   }, [open]);
+
+  // The nav button steps aside while the page already shows a quote button
+  useEffect(() => {
+    const targets = document.querySelectorAll(
+      'main a[href="#quote"], main #quote, footer a[href$="#quote"]',
+    );
+    if (!targets.length || typeof IntersectionObserver === "undefined") {
+      setQuoteOnScreen(false);
+      return;
+    }
+    const seen = new Set<Element>();
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) seen.add(e.target);
+        else seen.delete(e.target);
+      }
+      setQuoteOnScreen(seen.size > 0);
+    });
+    targets.forEach((t) => io.observe(t));
+    return () => io.disconnect();
+  }, [pathname]);
+
+  // With the menu open the page is covered, so the nav button is the only one
+  const hideCta = quoteOnScreen && !open;
 
   const isCurrent = (href: string) => !href.includes("#") && href === pathname;
 
@@ -61,7 +87,14 @@ export default function Nav() {
 
           <ThemeToggle className={styles.theme} />
 
-          <a href={quoteHref} className={`btn btn-primary button-sm ${styles.cta}`}>
+          <a
+            href={quoteHref}
+            className={`btn btn-primary button-sm ${styles.cta}`}
+            data-hidden={hideCta}
+            aria-hidden={hideCta}
+            tabIndex={hideCta ? -1 : undefined}
+            onClick={() => setOpen(false)}
+          >
             Request a quote
           </a>
 
@@ -92,7 +125,7 @@ export default function Nav() {
             <li key={l.href} style={{ transitionDelay: open ? `${Math.min(i * 60, 400)}ms` : "0ms" }}>
               <Link
                 href={l.href}
-                className="heading-4"
+                className="heading-5"
                 aria-current={isCurrent(l.href) ? "page" : undefined}
                 onClick={() => setOpen(false)}
               >
@@ -100,15 +133,6 @@ export default function Nav() {
               </Link>
             </li>
           ))}
-          <li style={{ transitionDelay: open ? `${Math.min(links.length * 60, 400)}ms` : "0ms" }}>
-            <a
-              href={quoteHref}
-              className="btn btn-primary btn-lg button-md"
-              onClick={() => setOpen(false)}
-            >
-              Request a quote
-            </a>
-          </li>
         </ul>
       </div>
     </>

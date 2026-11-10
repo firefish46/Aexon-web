@@ -122,3 +122,23 @@
     width: 100%;
   }
 }
+
+@media (max-width: 480px) {
+  .form,
+  .done {
+    gap: var(--s-200);
+    padding: var(--s-200);
+  }
+  .field {
+    gap: var(--s-50);
+  }
+  .field input,
+  .field select,
+  .field textarea {
+    padding: var(--s-75) var(--s-100);
+  }
+  .field select {
+    background-position: right var(--s-100) center;
+    padding-right: var(--s-400);
+  }
+}

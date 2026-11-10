@@ -70,3 +70,12 @@
     padding: 0 var(--s-200) var(--s-200);
   }
 }
+
+@media (max-width: 480px) {
+  .list {
+    gap: var(--s-75);
+  }
+  .q {
+    padding: var(--s-100) var(--s-200);
+  }
+}
