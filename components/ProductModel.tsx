@@ -11,8 +11,9 @@ type ModelViewerEl = HTMLElement & {
   cameraTarget: string;
   fieldOfView: string;
   jumpCameraToGoal: () => void;
-  zoom: (keyPresses: number) => void;
+  getCameraOrbit: () => { theta: number; phi: number; radius: number };
   autoRotate: boolean;
+  resetTurntableRotation: (theta?: number) => void;
 };
 
 declare module "react" {
@@ -187,12 +188,26 @@ export default function ProductModel({ product, onFail }: { product: Product; on
   const goView = (i: number) => {
     const el = ref.current;
     if (!el) return;
+    // auto-rotate turns the model itself, so square it up before aiming the camera
+    el.autoRotate = false;
+    el.resetTurntableRotation(0);
     el.cameraOrbit = VIEWS[i].orbit;
     el.cameraTarget = "auto auto auto";
     el.fieldOfView = "auto";
     if (reduced) el.jumpCameraToGoal();
     // set after the camera-change event from this programmatic move
     requestAnimationFrame(() => setView(i));
+  };
+
+  // Wheel and pinch zoom are off so the page scrolls, which also disables
+  // model-viewer's zoom(); the buttons move the camera in and out directly.
+  // model-viewer keeps the distance within min and max camera orbit.
+  const zoomBy = (factor: number) => {
+    const el = ref.current;
+    if (!el) return;
+    const { theta, phi, radius } = el.getCameraOrbit();
+    el.cameraOrbit = `${theta}rad ${phi}rad ${radius * factor}m`;
+    if (reduced) el.jumpCameraToGoal();
   };
 
   const hotspots = product.hotspots.filter((h) => h.position);
@@ -210,7 +225,7 @@ export default function ProductModel({ product, onFail }: { product: Product; on
             loading="eager"
             camera-controls
             camera-orbit={START}
-            min-camera-orbit="auto 20deg auto"
+            min-camera-orbit="auto 20deg 40%"
             max-camera-orbit="auto 95deg 160%"
             interaction-prompt="none"
             auto-rotate={!reduced || undefined}
@@ -314,10 +329,10 @@ export default function ProductModel({ product, onFail }: { product: Product; on
           ))}
         </div>
         <div className={m.tools}>
-          <button type="button" className={`button-sm ${styles.reset} ${m.zoomBtn}`} onClick={() => ref.current?.zoom(3)} aria-label="Zoom in">
+          <button type="button" className={`button-sm ${styles.reset} ${m.zoomBtn}`} onClick={() => zoomBy(0.8)} aria-label="Zoom in">
             <MagnifyingGlassPlus size={16} aria-hidden />
           </button>
-          <button type="button" className={`button-sm ${styles.reset} ${m.zoomBtn}`} onClick={() => ref.current?.zoom(-3)} aria-label="Zoom out">
+          <button type="button" className={`button-sm ${styles.reset} ${m.zoomBtn}`} onClick={() => zoomBy(1.25)} aria-label="Zoom out">
             <MagnifyingGlassMinus size={16} aria-hidden />
           </button>
           <button type="button" className={`button-sm ${styles.reset}`} onClick={() => goView(1)}>

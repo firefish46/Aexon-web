@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowsOut } from "@phosphor-icons/react";
 import type { ConsoleTour as Tour } from "@/content/site";
 import ConsoleScreen from "./ConsoleScreen";
+import ConsoleScreenPrime from "./ConsoleScreenPrime";
 import Reveal from "./Reveal";
 import styles from "./ConsoleTour.module.css";
 
@@ -80,7 +81,11 @@ export default function ConsoleTour({ tour }: { tour: Tour }) {
                 ["--z" as string]: s,
               }}
             >
-              <ConsoleScreen className={styles.shot} label={tour.alt} />
+              {tour.screen === "laser-prime" ? (
+                <ConsoleScreenPrime className={styles.shot} label={tour.alt} />
+              ) : (
+                <ConsoleScreen className={styles.shot} label={tour.alt} />
+              )}
 
               {tour.regions.map((r, i) => (
                 <button

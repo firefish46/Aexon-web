@@ -11,6 +11,7 @@ next-env.d.ts
 # Source files that are not served (the web versions live in public/)
 /Laser Pro Printer_Meshy_AI_*.glb
 /public/products/laser pro/
+/models-src/
 
 # Local editor and Claude Code settings
 /.claude/

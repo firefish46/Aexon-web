@@ -128,7 +128,7 @@ export default function Home() {
             <h1 id="hero-title" className="heading-1 gradient-text">
               Clear film, printed dry.
               <br />
-              Made in the UK.
+              Designed in the UK.
             </h1>
             <p className={`body-3 muted ${styles.sub}`}>
               Aexon designs and builds diagnostic film imagers in Middlesbrough and supplies hospitals,

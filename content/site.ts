@@ -42,7 +42,10 @@ export type Hotspot = {
 };
 
 export type ChipShowcase = {
-  image: string;
+  /** photo of the main board; without one the board and chip are drawn */
+  image?: string;
+  /** text on the drawn chip's lid, first line largest */
+  marking?: string[];
   alt: string;
   title: string;
   body: string;
@@ -51,7 +54,9 @@ export type ChipShowcase = {
 };
 
 export type ConsoleTour = {
-  image: string;
+  /** which drawn screen to show */
+  screen?: "laser-pro" | "laser-prime";
+  image?: string;
   imageWidth: number;
   imageHeight: number;
   alt: string;
@@ -94,6 +99,7 @@ export const products: Product[] = [
     imageWidth: 783,
     imageHeight: 1068,
     alt: "Aexon Laser Prime dry laser imager, a white floor standing unit with a touchscreen and two blue film trays",
+    model: "/models/laser-prime.glb",
     highlights: [
       {
         title: "130+ sheets an hour",
@@ -116,28 +122,86 @@ export const products: Product[] = [
       {
         x: 29,
         y: 8,
+        position: "-0.18m 0.993m 0.155m",
+        normal: "0m 1m 0m",
         title: "Film output",
         body: "Finished film exits at the top, dry and ready to read.",
       },
       {
         x: 57,
         y: 17,
+        position: "0.178m 0.872m 0.334m",
+        normal: "0m 0.4m 1m",
         title: "Touchscreen console",
         body: "Large backlit LCD touchscreen showing status, alarms and faults.",
       },
       {
         x: 37,
         y: 66,
+        position: "-0.015m 0.32m 0.364m",
+        normal: "0m 0m 1m",
         title: "Two film trays",
         body: "Up to 150 sheets per tray, loaded from the front.",
       },
       {
         x: 22,
         y: 94,
+        position: "-0.27m 0.031m 0.307m",
+        normal: "0m 0m 1m",
         title: "Castors",
         body: "Roll the 191 kg unit into place and reposition it when the room changes.",
       },
     ],
+    chip: {
+      marking: ["FPGA", "SYSTEM ON CHIP"],
+      alt: "Illustration of the Laser Prime controller, a system on chip FPGA on the main board",
+      title: "An FPGA controller keeps 130 sheets an hour on time",
+      body: "The Laser Prime is run by a system on chip FPGA. Its processor cores handle the network and DICOM, and its programmable logic drives the laser line by line.",
+      steps: [
+        {
+          title: "Receives",
+          body: "Images arrive from your PACS or modality over DICOM 3.0 on the gigabit Ethernet port.",
+        },
+        {
+          title: "Processes",
+          body: "Each image is mapped to 14 bit greyscale, with the built in densitometer's calibration applied to every sheet.",
+        },
+        {
+          title: "Prints",
+          body: "The logic times the laser for every line at 508 dpi, fast enough for 130 or more 14×17 in sheets an hour.",
+        },
+      ],
+    },
+    console: {
+      screen: "laser-prime",
+      imageWidth: 1600,
+      imageHeight: 860,
+      alt: "Laser Prime touchscreen showing a Ready status, film left in both trays, alarms and faults, and Calibrate, Settings and Maintain buttons",
+      title: "Status, alarms and faults at a glance",
+      body: "The large backlit touchscreen shows what the imager is doing, how much film is left and anything that needs attention.",
+      regions: [
+        {
+          title: "Printer status",
+          body: "Whether the imager is ready, the last job it printed, sheets printed today and when density was last calibrated.",
+          rect: [1.9, 12.8, 46.9, 52.3],
+        },
+        {
+          title: "Film trays",
+          body: "Film size and sheets left in each 150 sheet tray, with a warning before a tray runs out.",
+          rect: [50.6, 12.8, 47.5, 52.3],
+        },
+        {
+          title: "Alarms and faults",
+          body: "Active faults and recent alerts, each with the time it happened.",
+          rect: [1.9, 67.4, 46.9, 29.1],
+        },
+        {
+          title: "One touch controls",
+          body: "Calibration, settings and maintenance, each a single tap away.",
+          rect: [51.7, 67.4, 46.4, 29.1],
+        },
+      ],
+    },
     specs: [
       { label: "Print technology", value: "Dry laser imaging" },
       { label: "Spatial resolution", value: "508 dpi (20 pixels/mm)" },

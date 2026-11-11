@@ -38,6 +38,7 @@
 /* Fade the photo and traces out at the edges so the board floats on the page.
    Masked individually: a mask on .board would flatten the raised chip. */
 .photo,
+.art,
 .traces {
   -webkit-mask-image:
     linear-gradient(to right, transparent, #000 14%, #000 86%, transparent),
@@ -60,6 +61,50 @@
   filter: brightness(0.5) saturate(0.85);
   pointer-events: none;
   user-select: none;
+}
+
+/* Drawn board for products without a board photo */
+.art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* The drawn board glows blue throughout, data in and out */
+.scene[data-art] {
+  --in: #5aa9ff;
+  --out: #8fd3ff;
+}
+
+.scene[data-art] .electron[data-tone="a"],
+.scene[data-art] .electron[data-tone="b"] {
+  stroke: #e4f2ff;
+}
+
+.scene[data-art] .line {
+  stroke-opacity: 0.7;
+}
+
+.scene[data-art] .top {
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 0 50px rgba(61, 139, 255, 0.45);
+}
+
+.scene[data-art] .edge {
+  background: #1d2026;
+}
+
+.scene[data-art] .core {
+  background: radial-gradient(closest-side, rgba(90, 169, 255, 0.35), transparent);
+}
+
+.lid {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .traces {

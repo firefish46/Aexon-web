@@ -129,7 +129,7 @@ export default async function ProductPage({ params }: { params: Promise<Params> 
         </div>
       </section>
 
-      {product.chip && <ChipShowcase chip={product.chip} />}
+      {product.chip && <ChipShowcase chip={product.chip} productName={product.name} />}
       {product.console && <ConsoleTour tour={product.console} />}
 
       <section className="section" aria-labelledby="specs-title">
