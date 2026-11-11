@@ -233,8 +233,8 @@ export default function ProductModel({ product, onFail }: { product: Product; on
             rotation-per-second="12deg"
             shadow-intensity="1"
             shadow-softness="0.9"
-            exposure="0.85"
-            tone-mapping="neutral"
+            exposure={String(product.modelLook?.exposure ?? 0.85)}
+            tone-mapping={product.modelLook?.toneMapping ?? "neutral"}
             disable-pan
             // the viewer spans the screen, so the wheel scrolls the page; zoom uses the buttons
             disable-zoom

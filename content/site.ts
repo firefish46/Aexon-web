@@ -78,6 +78,8 @@ export type Product = {
   alt: string;
   /** optional GLB model, shown in place of the photo when present */
   model?: string;
+  /** how the 3D model is lit; light models need softer highlights so their tops keep their shape */
+  modelLook?: { exposure?: number; toneMapping?: "neutral" | "agx" | "aces" };
   highlights: { title: string; body: string }[];
   hotspots: Hotspot[];
   /** optional "inside the machine" section with the main board controller */
@@ -100,6 +102,7 @@ export const products: Product[] = [
     imageHeight: 1068,
     alt: "Aexon Laser Prime dry laser imager, a white floor standing unit with a touchscreen and two blue film trays",
     model: "/models/laser-prime.glb",
+    modelLook: { exposure: 1, toneMapping: "aces" },
     highlights: [
       {
         title: "130+ sheets an hour",

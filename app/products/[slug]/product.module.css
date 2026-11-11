@@ -48,12 +48,35 @@
 
 /* Full screen model layout: the viewer spans the page, copy sits centred below */
 .heroFull {
+  position: relative;
+  isolation: isolate;
   display: grid;
   gap: var(--s-100);
   /* just clears the fixed nav */
   padding-top: var(--s-800);
   padding-bottom: var(--s-600);
   overflow-x: clip;
+  --glow-a: 0.2;
+}
+
+/* A soft blur of the three logo colours across the whole first screen,
+   so the white product stands out from the page */
+.heroFull::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(45% 55% at 18% 35%, rgba(31, 162, 230, var(--glow-a)), transparent 70%),
+    radial-gradient(40% 50% at 85% 30%, rgba(139, 197, 63, calc(var(--glow-a) * 0.85)), transparent 70%),
+    radial-gradient(50% 45% at 55% 80%, rgba(244, 122, 32, calc(var(--glow-a) * 0.7)), transparent 70%),
+    radial-gradient(35% 40% at 50% 45%, rgba(31, 162, 230, calc(var(--glow-a) * 0.6)), transparent 70%);
+  filter: blur(40px);
+}
+
+:global(:root[data-theme="light"]) .heroFull {
+  --glow-a: 0.32;
 }
 
 .heroFull .back {
