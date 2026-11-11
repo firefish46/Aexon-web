@@ -14,7 +14,21 @@ type ModelViewerEl = HTMLElement & {
   getCameraOrbit: () => { theta: number; phi: number; radius: number };
   autoRotate: boolean;
   resetTurntableRotation: (theta?: number) => void;
+  getCameraTarget: () => { x: number; y: number; z: number };
+  getFieldOfView: () => number;
+  getDimensions: () => { x: number; y: number; z: number };
+  /** how far auto-rotate has turned the model, in radians */
+  turntableRotation: number;
 };
+
+/** "x y z" with optional "m" units, as used in data-position and data-normal */
+const vec = (v: string | undefined) => {
+  const [x = 0, y = 0, z = 0] = (v ?? "").split(/\s+/).map((n) => parseFloat(n) || 0);
+  return { x, y, z };
+};
+
+/** How close the camera comes to a part when its dot is opened, in model sizes */
+const FOCUS_DISTANCE = 1.4;
 
 declare module "react" {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -74,6 +88,8 @@ export default function ProductModel({ product, onFail }: { product: Product; on
   const lineRef = useRef<SVGPathElement>(null);
   const endRef = useRef<SVGCircleElement>(null);
   const dotRefs = useRef<Record<number, HTMLButtonElement | null>>({});
+  // the camera before a detail was opened, so closing it can go back there
+  const savedCam = useRef<{ orbit: string; target: string; fov: string } | null>(null);
 
   // model-viewer touches window at import time, so load it on the client only
   useEffect(() => {
@@ -185,12 +201,73 @@ export default function ProductModel({ product, onFail }: { product: Product; on
     };
   }, [active, reduced]);
 
+  // Opening a detail flies the camera to that part; closing it flies back
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || !loaded) return;
+
+    if (active === null) {
+      const back = savedCam.current;
+      if (!back) return;
+      savedCam.current = null;
+      el.cameraTarget = back.target;
+      el.cameraOrbit = back.orbit;
+      el.fieldOfView = back.fov;
+      if (reduced) el.jumpCameraToGoal();
+      return;
+    }
+
+    const h = product.hotspots[active];
+    if (!h?.position) return;
+
+    if (!savedCam.current) {
+      const o = el.getCameraOrbit();
+      const t = el.getCameraTarget();
+      savedCam.current = {
+        orbit: `${o.theta}rad ${o.phi}rad ${o.radius}m`,
+        target: `${t.x}m ${t.y}m ${t.z}m`,
+        fov: `${el.getFieldOfView()}deg`,
+      };
+    }
+
+    // Auto-rotate turns the model itself, so turn the point and its normal the same way
+    const a = el.turntableRotation || 0;
+    const cos = Math.cos(a);
+    const sin = Math.sin(a);
+    const p = vec(h.position);
+    const n = vec(h.normal);
+    const px = p.x * cos + p.z * sin;
+    const pz = -p.x * sin + p.z * cos;
+    const nx = n.x * cos + n.z * sin;
+    const nz = -n.x * sin + n.z * cos;
+
+    // Look at the part from the side it faces, a little from above.
+    // A part facing straight up is seen from where the camera already is.
+    const flat = Math.hypot(nx, nz);
+    const theta = flat > 0.2 ? Math.atan2(nx, nz) : el.getCameraOrbit().theta;
+    const phi = flat > 0.2 ? 70 : 40;
+
+    const size = el.getDimensions();
+    const radius = Math.max(size.x, size.y, size.z) * FOCUS_DISTANCE;
+    // Phones show the card along the bottom of the stage, so aim a little lower
+    // to put the part in the upper half, clear of the card
+    const narrow = (stageRef.current?.clientWidth ?? 1000) < 640;
+    const ty = narrow ? p.y - radius * 0.16 : p.y;
+
+    el.cameraTarget = `${px}m ${ty}m ${pz}m`;
+    el.cameraOrbit = `${theta}rad ${phi}deg ${radius}m`;
+    if (reduced) el.jumpCameraToGoal();
+  }, [active, loaded, reduced, product.hotspots]);
+
   const goView = (i: number) => {
     const el = ref.current;
     if (!el) return;
     // auto-rotate turns the model itself, so square it up before aiming the camera
     el.autoRotate = false;
     el.resetTurntableRotation(0);
+    // a view button replaces any zoom into a part
+    savedCam.current = null;
+    setActive(null);
     el.cameraOrbit = VIEWS[i].orbit;
     el.cameraTarget = "auto auto auto";
     el.fieldOfView = "auto";
